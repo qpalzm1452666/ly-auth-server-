@@ -1,0 +1,9 @@
+{
+    "name": "ly-auth/auth-system",
+    "description": "Ly枪战辅助 - 卡密验证系统",
+    "type": "project",
+    "require": {
+        "php": ">=7.4"
+    },
+    "license": "MIT"
+}
