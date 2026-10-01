@@ -1,0 +1,4047 @@
+repeat task.wait() until game:IsLoaded()
+
+local WindUI = loadstring(game:HttpGet("https://github.com/Footagesus/WindUI/releases/latest/download/main.lua"))()
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+local VirtualUser = game:GetService("VirtualUser")
+local RunService = game:GetService("RunService")
+
+local LP = Players.LocalPlayer
+local Plr = Players
+
+local Window = WindUI:CreateWindow({
+    Title = "力量传奇 林玉",
+    Author = "林玉专属",
+    Size = UDim2.new(0, 500, 0, 400),
+})
+
+local TabGG = Window:Tab({ Title = "公告" })
+local TabZY = Window:Tab({ Title = "主要" })
+local TabXL = Window:Tab({ Title = "训练挂机" })
+local TabST = Window:Tab({ Title = "打石头" })
+local TabZD = Window:Tab({ Title = "自动战斗" })
+local TabCS = Window:Tab({ Title = "重生" })
+local TabJY = Window:Tab({ Title = "交易" })
+local TabCW = Window:Tab({ Title = "宠物" })
+local TabTS = Window:Tab({ Title = "传送" })
+
+getgenv().AutoTrainTriple = false
+getgenv().AutoWeight      = false
+getgenv().AutoPushup      = false
+getgenv().AutoSitup       = false
+getgenv().AutoHandstand   = false
+getgenv().AutoAllTrain    = false
+getgenv().AutoPushups     = false
+getgenv().AutoSitups      = false
+getgenv().AutoHandstands  = false
+
+getgenv().RK0           = false
+getgenv().RK10          = false
+getgenv().RK100         = false
+getgenv().RK5000        = false
+getgenv().RK150000      = false
+getgenv().RK400000      = false
+getgenv().RK750000      = false
+getgenv().RK1M          = false
+getgenv().RK5M          = false
+getgenv().JungleRock10M = false
+
+getgenv().AutoKarmaV3 = false
+
+getgenv().PPJ10           = false
+getgenv().PPJ2000         = false
+getgenv().SHPPJ2000       = false
+getgenv().YHPPJ3500       = false
+getgenv().CQPPJ3000       = false
+getgenv().JungleTreadmill = false
+getgenv().SquatBeach      = false
+getgenv().SquatFrostGym   = false
+getgenv().SquatLegendGym  = false
+getgenv().SquatMuscleGym  = false
+getgenv().SquatJungleGym  = false
+getgenv().PullupBeach     = false
+getgenv().PullupMythGym   = false
+getgenv().ThrowBeach      = false
+getgenv().ThrowMythGym    = false
+getgenv().ThrowLegendGym  = false
+getgenv().ThrowMuscleGym  = false
+getgenv().ThrowJungleGym  = false
+
+getgenv().AutoRebirth      = false
+getgenv().AutoShake        = false
+getgenv().AutoREB          = false
+getgenv().AutoProteinEgg   = false
+getgenv().EggEffectEndTime = 0
+getgenv().SafeSpot2        = false
+getgenv().ShowRebirthTab10 = false
+getgenv().ShowEggCount     = false
+
+local bypassCount   = 0
+local afkConnection = nil
+local autoPunchLoop = nil
+local attractLoop   = nil
+local platform      = nil
+local OpenCrystal   = nil
+
+local state = {
+    running        = true,
+    autoPet        = false,
+    autoAura       = false,
+    petGeneration  = 0,
+    auraGeneration = 0,
+}
+
+local PET_NAMES = {
+    "Neon Guardian",
+    "Cybernetic Showdown Dragon",
+    "Darkstar Hunter",
+    "Muscle Sensei",
+    "Infernal Dragon",
+    "Aether Spirit Bunny",
+    "Magic Butterfly",
+    "Ultra Birdie",
+    "Apex Overlord",
+}
+
+local AURA_NAMES = {
+    "Muscle King",
+    "Entropic Blast",
+}
+
+local PET_CN = {
+    ["Neon Guardian"] = "霓虹守护者",
+    ["Cybernetic Showdown Dragon"] = "赛博对决龙",
+    ["Darkstar Hunter"] = "暗星猎手",
+    ["Muscle Sensei"] = "肌肉宗师",
+    ["Infernal Dragon"] = "炼狱龙",
+    ["Aether Spirit Bunny"] = "以太灵兔",
+    ["Magic Butterfly"] = "魔法蝴蝶",
+    ["Ultra Birdie"] = "超级小鸟",
+    ["Apex Overlord"] = "顶峰霸主",
+}
+
+local AURA_CN = {
+    ["Muscle King"] = "肌肉之王",
+    ["Entropic Blast"] = "熵爆光环",
+}
+
+local PET_EN = {}
+for en, cn in pairs(PET_CN) do PET_EN[cn] = en end
+
+local AURA_EN = {}
+for en, cn in pairs(AURA_CN) do AURA_EN[cn] = en end
+
+local rockNames = {
+    ["Punching Rock"] = "击打岩石",
+    ["Inferno Rock"] = "地狱火岩石",
+    ["Frozen Rock"] = "冰冻岩石",
+    ["Tiny Rock"] = "微小岩石",
+    ["Ancient Jungle Rock"] = "1000万石头",
+    ["Muscle King Mountain"] = "500万绿石头",
+    ["Rock Of Legends"] = "传说岩石",
+    ["Jungle Rock"] = "丛林岩石",
+    ["Space Rock"] = "太空岩石",
+    ["Mythical Rock"] = "神话岩石",
+    ["Eternal Rock"] = "永恒岩石",
+    ["Legendary Rock"] = "传说岩石",
+    ["Golden Rock"] = "黄金岩石",
+    ["Diamond Rock"] = "钻石岩石",
+}
+
+local crystalNames = {
+    ["Blue Crystal"] = "蓝色宠物蛋",
+    ["Green Crystal"] = "绿色宠物蛋",
+    ["Frost Crystal"] = "冰霜宠物蛋",
+    ["Mythical Crystal"] = "神话宠物蛋",
+    ["Inferno Crystal"] = "地狱宠物蛋",
+    ["Legends Crystal"] = "传奇宠物蛋",
+    ["Muscle Elite Crystal"] = "肌肉精英宠物蛋",
+    ["Galaxy Oracle Crystal"] = "银河先知宠物蛋",
+    ["Jungle Crystal"] = "丛林宠物蛋",
+}
+
+local rockNamesReverse = {}
+for k, v in pairs(rockNames) do rockNamesReverse[v] = k end
+
+local crystalNamesReverse = {}
+for k, v in pairs(crystalNames) do crystalNamesReverse[v] = k end
+
+local rockshow1CN = {}
+local rockshow2CN = {}
+
+pcall(function()
+    for _, v in pairs(Workspace.machinesFolder:GetChildren()) do
+        if v:FindFirstChild("Rock") then
+            local cn = rockNames[v.Name] or v.Name
+            table.insert(rockshow1CN, cn)
+            table.insert(rockshow2CN, cn)
+        end
+    end
+end)
+
+local crystalshowCN = {
+    "蓝色宠物蛋", "绿色宠物蛋", "冰霜宠物蛋", "神话宠物蛋",
+    "地狱宠物蛋", "传奇宠物蛋", "肌肉精英宠物蛋",
+    "银河先知宠物蛋", "丛林宠物蛋",
+}
+
+local Interstellar = {
+    Rocks = "",
+    Rock = "",
+    killplayers = {},
+    birth = 0,
+    autobirth = false,
+}
+
+local AutoStates = {
+    rock = false,
+    rocks = false,
+    AutoKillReport = false,
+    AutoKillReportLoops = {},
+    AutoKillReport2 = false,
+    AutoKillReportLoops2 = {},
+    AutoKillReport3 = false,
+    AutoKillReportLoops3 = {},
+    AutoKill = false,
+}
+
+local PlayerList = {}
+local function refreshPlayerList()
+    PlayerList = {}
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LP then
+            table.insert(PlayerList, player.Name)
+        end
+    end
+end
+refreshPlayerList()
+
+local function notify(message)
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "林玉",
+            Text = message,
+            Duration = 3,
+        })
+    end)
+end
+
+local function T(cf)
+    pcall(function()
+        LP.Character.HumanoidRootPart.CFrame = cf
+    end)
+end
+
+local function getPetShopFolder()
+    local shared = ReplicatedStorage:FindFirstChild("shared")
+    local runtime = shared and shared:FindFirstChild("runtime")
+    return (runtime and runtime:FindFirstChild("cPetShopFolder"))
+        or ReplicatedStorage:FindFirstChild("cPetShopFolder")
+end
+
+local function getPetShopRemote()
+    local rEvents = ReplicatedStorage:FindFirstChild("rEvents")
+    return (rEvents and rEvents:FindFirstChild("cPetShopRemote"))
+        or ReplicatedStorage:FindFirstChild("cPetShopRemote")
+end
+
+local function filterAvailableItems(names)
+    local available = {}
+    local shopFolder = getPetShopFolder()
+    for _, name in ipairs(names) do
+        if not shopFolder or shopFolder:FindFirstChild(name) then
+            available[#available + 1] = name
+        end
+    end
+    return available
+end
+
+local function purchaseItem(itemName, showNotification)
+    if type(itemName) ~= "string" or itemName == "" then
+        if showNotification then notify("请先选择一个选项") end
+        return false
+    end
+    local shopFolder = getPetShopFolder()
+    local shopRemote = getPetShopRemote()
+    local shopItem = shopFolder and shopFolder:FindFirstChild(itemName)
+    if not shopFolder or not shopItem or not shopRemote or not shopRemote:IsA("RemoteFunction") then
+        if showNotification then notify("商店当前不可用") end
+        return false
+    end
+    local ok, result = pcall(function()
+        return shopRemote:InvokeServer(shopItem)
+    end)
+    if not ok then
+        if showNotification then notify("购买失败") end
+    end
+    return ok and result == true
+end
+
+TabGG:Paragraph({
+    Title = "公告",
+    Desc = "林玉的脚本，请勿泛滥",
+})
+
+TabGG:Section({
+    Title = "林玉Q号:2294277825",
+    Box = true,
+    Opened = true,
+})
+
+local secZY1 = TabZY:Section({
+    Title = "挂机保护",
+    Box = true,
+    Opened = true,
+})
+
+secZY1:Toggle({
+    Title = "长时间挂机防踢",
+    Value = false,
+    Callback = function(state)
+        if state then
+            bypassCount = 0
+            afkConnection = Players.LocalPlayer.Idled:Connect(function()
+                VirtualUser:CaptureController()
+                VirtualUser:ClickButton2(Vector2.new(0, 0))
+                bypassCount = bypassCount + 1
+            end)
+        else
+            if afkConnection then
+                afkConnection:Disconnect()
+                afkConnection = nil
+            end
+        end
+    end
+})
+
+local secZY78 = TabZY:Section({
+    Title = "主要功能",
+    Box = true,
+    Opened = false,
+})
+
+-- 防甩飞
+local antiFlingRun = false
+local antiFlingConn = nil
+secZY78:Toggle({
+    Title = "防甩飞",
+    Value = false,
+    Callback = function(enabled)
+        antiFlingRun = enabled
+        if enabled then
+            antiFlingConn = RunService.Heartbeat:Connect(function()
+                local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+                if not root then return end
+                local bad = root:FindFirstChild("BodyVelocity")
+                if bad and bad.MaxForce == Vector3.new(100000, 0, 100000) then
+                    bad:Destroy()
+                end
+                if not root:FindFirstChild("MLAntiFling") then
+                    local bv = Instance.new("BodyVelocity")
+                    bv.Name = "MLAntiFling"
+                    bv.MaxForce = Vector3.new(100000, 0, 100000)
+                    bv.Velocity = Vector3.zero
+                    bv.P = 1250
+                    bv.Parent = root
+                end
+            end)
+            WindUI:Notify({Title = "防甩飞", Content = "已开启", Duration = 2})
+        else
+            if antiFlingConn then
+                antiFlingConn:Disconnect()
+                antiFlingConn = nil
+            end
+            local root = LP.Character and LP.Character:FindFirstChild("HumanoidRootPart")
+            if root then
+                local old = root:FindFirstChild("MLAntiFling")
+                if old then old:Destroy() end
+                local bad = root:FindFirstChild("BodyVelocity")
+                if bad and bad.MaxForce == Vector3.new(100000, 0, 100000) then
+                    bad:Destroy()
+                end
+            end
+            WindUI:Notify({Title = "防甩飞", Content = "已关闭", Duration = 2})
+        end
+    end
+})
+
+-- 水上漂
+local waterRun = false
+local waterParts = {}
+secZY78:Toggle({
+    Title = "水上漂",
+    Value = false,
+    Callback = function(enabled)
+        waterRun = enabled
+        if enabled then
+            task.spawn(function()
+                local sz = 2048
+                for x = 0, 12 do
+                    for z = 0, 12 do
+                        if not waterRun then break end
+                        local offs = {
+                            { x * sz, z * sz }, { -x * sz, z * sz },
+                            { -x * sz, -z * sz }, { x * sz, -z * sz },
+                        }
+                        for _, o in ipairs(offs) do
+                            local p = Instance.new("Part")
+                            p.Size = Vector3.new(sz, 1, sz)
+                            p.Position = Vector3.new(-2, -9.5, -2) + Vector3.new(o[1], 0, o[2])
+                            p.Anchored = true
+                            p.Transparency = 1
+                            p.CanCollide = waterRun
+                            p.Name = "MLWaterPart"
+                            p.Parent = Workspace
+                            table.insert(waterParts, p)
+                        end
+                    end
+                end
+            end)
+            WindUI:Notify({Title = "水上漂", Content = "正在铺设水面碰撞板", Duration = 2})
+        else
+            for _, p in ipairs(waterParts) do
+                if p and p.Parent then p.CanCollide = false end
+            end
+            WindUI:Notify({Title = "水上漂", Content = "已关闭", Duration = 2})
+        end
+    end
+})
+
+-- 自动击杀boss
+do
+local bossSec = TabZY:Section({
+	Title = "自动击杀boss",
+	Box = true,
+	Opened = true,
+})
+
+local ps = game:GetService("Players")
+local rs = game:GetService("RunService")
+local rg = game:GetService("ReplicatedStorage")
+local ws = game:GetService("Workspace")
+local lp = ps.LocalPlayer
+
+local fh = 15
+local rr = 5
+local rsp = 30
+local tilt = true
+
+bossSec:Slider({
+	Title = "头顶高度",
+	Desc = "判定箱上方格数",
+	Value = { Min = 0, Max = 200, Default = 15, Precision = 0 },
+	Callback = function(v) fh = v end
+})
+
+bossSec:Slider({
+	Title = "圈半径",
+	Desc = "头顶绕小圈大小",
+	Value = { Min = 3, Max = 30, Default = 5, Precision = 0 },
+	Callback = function(v) rr = v end
+})
+
+bossSec:Slider({
+	Title = "转圈速度",
+	Desc = "数值越大越快",
+	Value = { Min = 5, Max = 200, Default = 30, Precision = 0 },
+	Callback = function(v) rsp = v end
+})
+
+bossSec:Toggle({
+	Title = "人物倾斜朝Boss",
+	Value = true,
+	Callback = function(v) tilt = v end
+})
+
+local run = false
+local conn = nil
+local hitbox = nil
+
+local function refreshHitbox()
+	local ev = ws:FindFirstChild("Events")
+	local arena = ev and ev:FindFirstChild("BossArena")
+	if not arena then return nil end
+	for _, f in ipairs(arena:GetChildren()) do
+		if f.Name:find("Boss") then
+			local br = f:FindFirstChild("BossDamageHitbox", true)
+			if br then return br end
+		end
+	end
+	return nil
+end
+
+bossSec:Toggle({
+	Title = "自动击杀Boss",
+	Value = false,
+	Callback = function(en)
+		run = en
+		if en then
+			local me = lp:FindFirstChild("muscleEvent")
+			if not me then
+				WindUI:Notify({ Title = "错误", Content = "找不到muscleEvent", Duration = 2 })
+				run = false
+				return
+			end
+			local rEvents = rg:FindFirstChild("rEvents")
+			local sr = rEvents and rEvents:FindFirstChild("changeSpeedSizeRemote")
+			if not sr then
+				WindUI:Notify({ Title = "错误", Content = "找不到changeSpeedSizeRemote", Duration = 2 })
+				run = false
+				return
+			end
+
+			local ang = 0
+			local lastT = 0
+			local lastSz = 0
+			local cacheT = 0
+
+			conn = rs.Heartbeat:Connect(function()
+				if not run then return end
+				local t = tick()
+				if t - lastT < 0.01 then return end
+				lastT = t
+
+				local ch = lp.Character
+				local root = ch and ch:FindFirstChild("HumanoidRootPart")
+				local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+				if not root or not hum or hum.Health <= 0 then return end
+
+				if t - lastSz >= 1 then
+					lastSz = t
+					task.spawn(function()
+						pcall(function() sr:InvokeServer("changeSize", 6) end)
+					end)
+				end
+
+				if t - cacheT >= 0.5 or not hitbox or not hitbox.Parent then
+					cacheT = t
+					hitbox = refreshHitbox()
+				end
+
+				local tool = ch:FindFirstChild("Punch")
+				if not tool then
+					local bp = lp:FindFirstChild("Backpack")
+					local pk = bp and bp:FindFirstChild("Punch")
+					if pk then
+						pcall(function() hum:EquipTool(pk) end)
+						return
+					end
+				end
+
+				if not hitbox then return end
+
+				local bp = hitbox.Position
+				hum.PlatformStand = true
+				root.AssemblyLinearVelocity = Vector3.zero
+				root.AssemblyAngularVelocity = Vector3.zero
+
+				ang = ang + rsp * 0.001
+				local sp = Vector3.new(bp.X + math.cos(ang) * rr, bp.Y + fh, bp.Z + math.sin(ang) * rr)
+				root.CFrame = tilt and CFrame.lookAt(sp, Vector3.new(bp.X, sp.Y, bp.Z)) or CFrame.new(sp)
+
+				if tool then
+					pcall(function() tool:Activate() end)
+				end
+
+				local lh = ch:FindFirstChild("LeftHand")
+				local rh = ch:FindFirstChild("RightHand")
+				if lh then
+					firetouchinterest(hitbox, lh, 0)
+					firetouchinterest(hitbox, lh, 1)
+				end
+				if rh then
+					firetouchinterest(hitbox, rh, 0)
+					firetouchinterest(hitbox, rh, 1)
+				end
+
+				for _ = 1, 15 do
+					if not run then break end
+					me:FireServer("punch", "leftHand")
+					me:FireServer("punch", "rightHand")
+				end
+			end)
+
+			WindUI:Notify({ Title = "Boss测试", Content = "已开启", Duration = 2 })
+		else
+			if conn then
+				conn:Disconnect()
+				conn = nil
+			end
+			hitbox = nil
+			local ch = lp.Character
+			local hum = ch and ch:FindFirstChildOfClass("Humanoid")
+			if hum then hum.PlatformStand = false end
+			WindUI:Notify({ Title = "Boss测试", Content = "已关闭", Duration = 2 })
+		end
+	end
+})
+end
+
+-- 自动转幸运转盘
+local wheelRun = false
+local wheelRemote = ReplicatedStorage:FindFirstChild("rEvents") and ReplicatedStorage.rEvents:FindFirstChild("openFortuneWheelRemote")
+local wheelChances = nil
+do
+    local shared = ReplicatedStorage:FindFirstChild("shared")
+    local catalogs = shared and shared:FindFirstChild("catalogs")
+    local chances = catalogs and catalogs:FindFirstChild("fortuneWheelChances")
+    wheelChances = chances and chances:FindFirstChild("Fortune Wheel") or nil
+end
+secZY78:Toggle({
+    Title = "自动转幸运转盘",
+    Value = false,
+    Callback = function(enabled)
+        wheelRun = enabled
+        if enabled then
+            if not wheelRemote or not wheelChances then
+                WindUI:Notify({Title = "错误", Content = "找不到转盘远程", Duration = 2})
+                wheelRun = false
+                return
+            end
+            task.spawn(function()
+                while wheelRun do
+                    pcall(function()
+                        wheelRemote:InvokeServer("openFortuneWheel", wheelChances)
+                    end)
+                    task.wait(1)
+                end
+            end)
+            WindUI:Notify({Title = "幸运转盘", Content = "已开启", Duration = 2})
+        else
+            WindUI:Notify({Title = "幸运转盘", Content = "已关闭", Duration = 2})
+        end
+    end
+})
+
+
+local secZY2 = TabZY:Section({
+    Title = "属性修改 仅自己可见",
+    Box = true,
+    Opened = false,
+})
+
+secZY2:Input({
+    Title = "力量",
+    Desc = "输入力量数值",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.leaderstats.Strength.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "耐力",
+    Desc = "输入耐力数值",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.Durability.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "敏捷",
+    Desc = "输入敏捷数值",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.Agility.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "重生",
+    Desc = "输入重生次数",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.leaderstats.Rebirths.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "宝石",
+    Desc = "输入宝石数量",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.Gems.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "邪恶业报",
+    Desc = "输入邪恶业报数值",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.evilKarma.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "好人业报",
+    Desc = "输入好人业报数值",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.goodKarma.Value = tonumber(value)
+        end
+    end
+})
+
+secZY2:Input({
+    Title = "总业报",
+    Desc = "输入总业报数值",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LP.leaderstats.Kills.Value = tonumber(value)
+        end
+    end
+})
+
+local secZY91 = TabZY:Section({
+    Title = "属性查看",
+    Box = true,
+    Opened = false,
+})
+local LY2_RunS = game:GetService("RunService")
+local LY2_Cam = workspace.CurrentCamera
+
+local function LY2_wc(parent, name, tm)
+    tm = tm or 10
+    if not parent then return nil end
+    local o = parent:FindFirstChild(name)
+    if o then return o end
+    local endT = tick() + tm
+    while tick() < endT do
+        o = parent:FindFirstChild(name)
+        if o then return o end
+        task.wait(0.1)
+    end
+    return nil
+end
+
+local LY2_rE = LY2_wc(ReplicatedStorage, "rEvents", 20)
+local LY2_musEv = LY2_wc(LP, "muscleEvent", 20)
+
+local function LY2_fmt(n)
+    if n >= 1e18 then return string.format("%.2fqi", n / 1e18)
+    elseif n >= 1e15 then return string.format("%.2fqa", n / 1e15)
+    elseif n >= 1e12 then return string.format("%.2ft", n / 1e12)
+    elseif n >= 1e9 then return string.format("%.2fb", n / 1e9)
+    elseif n >= 1e6 then return string.format("%.2fm", n / 1e6)
+    elseif n >= 1e3 then return string.format("%.2fk", n / 1e3)
+    else return tostring(n) end
+end
+
+local function LY2_ffull(n)
+    local s = tostring(math.floor(n))
+    while true do
+        local k
+        s, k = s:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+        if k == 0 then break end
+    end
+    return s
+end
+
+local function LY2_setD(el, text)
+    if not el then return end
+    if not pcall(function() el:SetDesc(text) end) then
+        if not pcall(function() el:Set({ Desc = text }) end) then
+            pcall(function() el:Set(text) end)
+        end
+    end
+end
+
+local function LY2_pOpts(excl)
+    local t = {}
+    for _, p in ipairs(Players:GetPlayers()) do
+        if not excl or p ~= LP then
+            table.insert(t, p.DisplayName .. " | " .. p.Name)
+        end
+    end
+    if #t == 0 then table.insert(t, "无其他玩家") end
+    return t
+end
+
+local function LY2_pickName(txt)
+    local n = txt and txt:match("| (.+)$")
+    return n and n:gsub("^%s*(.-)%s*$", "%1") or nil
+end
+
+local function LY2_alive(p)
+    return p and p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+        and p.Character:FindFirstChild("Humanoid") and p.Character.Humanoid.Health > 0
+end
+
+local function LY2_prot(p)
+    if not p or not p.Character then return false end
+    if p.Character:FindFirstChildOfClass("ForceField") then return true end
+    local t = p.Character:GetAttribute("SpawnProtectedUntil")
+    return typeof(t) == "number" and workspace:GetServerTimeNow() < t
+end
+
+local function LY2_myRoot()
+    local c = LP.Character
+    local h = c and c:FindFirstChildOfClass("Humanoid")
+    local r = c and c:FindFirstChild("HumanoidRootPart")
+    if not c or not h or h.Health <= 0 or not r then return nil end
+    return c, h, r
+end
+
+local function LY2_inL(list, n)
+    for _, v in ipairs(list) do
+        if v:lower() == n:lower() then return true end
+    end
+    return false
+end
+
+local function LY2_near(t, oy)
+    if not LY2_alive(t) or LY2_prot(t) or LY2_prot(LP) then return false end
+    local c, h, r = LY2_myRoot()
+    local tr = t.Character and t.Character:FindFirstChild("HumanoidRootPart")
+    if not r or not tr then return false end
+    r.CFrame = tr.CFrame * CFrame.new(0, oy, 0)
+    r.AssemblyLinearVelocity = Vector3.zero
+    r.AssemblyAngularVelocity = Vector3.zero
+    return true
+end
+
+local function LY2_punch(t, oy)
+    if not LY2_near(t, oy) then return false, false end
+    LY2_RunS.Heartbeat:Wait()
+    if not LY2_near(t, oy) then return false, false end
+    local c = LY2_myRoot()
+    local tr = t.Character and t.Character:FindFirstChild("HumanoidRootPart")
+    local th = t.Character and t.Character:FindFirstChildOfClass("Humanoid")
+    if not c or not tr or not th or LY2_prot(t) then return false, false end
+    local hand = c:FindFirstChild("LeftHand") or c:FindFirstChild("RightHand")
+    if not hand then return false, false end
+    local tool = c:FindFirstChild("Punch") or (LP:FindFirstChild("Backpack") and LP.Backpack:FindFirstChild("Punch"))
+    local h = c:FindFirstChildOfClass("Humanoid")
+    if tool and tool.Parent ~= c and h then pcall(function() h:EquipTool(tool) end) end
+    local before = th.Health
+    local okP = pcall(function()
+        firetouchinterest(tr, hand, 0)
+        firetouchinterest(tr, hand, 1)
+        if LY2_musEv then LY2_musEv:FireServer("punch", hand.Name == "LeftHand" and "leftHand" or "rightHand") end
+    end)
+    if not okP then return false, false end
+    for _ = 1, 4 do
+        LY2_RunS.Heartbeat:Wait()
+        if not LY2_alive(t) or th.Health < before then return true, true end
+        if LY2_prot(t) then return false, false end
+    end
+    return false, true
+end
+
+local function LY2_hitLimit(t, lim, keep, oy)
+    local hits = 0
+    while hits < lim and keep() and LY2_alive(t) and not LY2_prot(t) do
+        local ok, tried = LY2_punch(t, oy)
+        if not tried then break end
+        if ok then hits = hits + 1 else task.wait(0.05) end
+    end
+end
+
+local function LY2_getStat(p, n, lead)
+    if lead then
+        local l = p and p:FindFirstChild("leaderstats")
+        return l and l:FindFirstChild(n)
+    end
+    return p and p:FindFirstChild(n)
+end
+
+local function LY2_st(p, n, l)
+    local o = LY2_getStat(p, n, l)
+    return o and LY2_fmt(o.Value) or "无"
+end
+
+local function LY2_dsc(p)
+    if not p then return "请在下方选择玩家" end
+    return table.concat({
+        "名字 " .. p.DisplayName,
+        "用户名 " .. p.Name,
+        "",
+        "力量 " .. LY2_st(p, "Strength", true),
+        "耐力 " .. LY2_st(p, "Durability", false),
+        "重生 " .. LY2_st(p, "Rebirths", true),
+        "击杀 " .. LY2_st(p, "Kills", true),
+        "争斗 " .. LY2_st(p, "Brawls", true),
+        "钻石 " .. LY2_st(p, "Gems", true),
+        "敏捷 " .. LY2_st(p, "Agility", false),
+    }, "\n")
+end
+
+local function LY2_calcHP(p)
+    local d = LY2_getStat(p, "Durability", false)
+    if not d then return 0 end
+    local m = 1
+    local u = p:FindFirstChild("ultimatesFolder")
+    if u and u:FindFirstChild("Infernal Health") then
+        m = m + 0.15 * (u["Infernal Health"].Value or 0)
+    end
+    local eq = p:FindFirstChild("equippedPets")
+    if eq then
+        for _, pv in ipairs(eq:GetChildren()) do
+            if pv:IsA("ObjectValue") and pv.Value then
+                local n = pv.Value.Name:lower()
+                if n:find("mighty") and n:find("monster") then m = m + 0.5 end
+                if n:find("small") and n:find("fry") then m = m + 0.25 end
+            end
+        end
+    end
+    return d.Value * m
+end
+
+local function LY2_calcDMG(p)
+    local l = p and p:FindFirstChild("leaderstats")
+    local s = l and l:FindFirstChild("Strength")
+    if not s then return 0 end
+    local b = s.Value * 0.0667
+    local m = 1
+    local u = p:FindFirstChild("ultimatesFolder")
+    if u and u:FindFirstChild("Demon Damage") then
+        m = m + 0.1 * (u["Demon Damage"].Value or 0)
+    end
+    local eq = p:FindFirstChild("equippedPets")
+    if eq then
+        for _, pv in ipairs(eq:GetChildren()) do
+            if pv:IsA("ObjectValue") and pv.Value then
+                local n = pv.Value.Name:lower()
+                if n:find("wild") and n:find("wizard") then m = m + 0.5 end
+                if n:find("chaos") and n:find("sorcerer") then m = m + 0.25 end
+            end
+        end
+    end
+    return b * m
+end
+
+local LY2_selfP = secZY91:Paragraph({ Title = "我的数据", Desc = "加载中" })
+
+local LY2_tgt = nil
+local LY2_tgtP = secZY91:Paragraph({ Title = "目标数据", Desc = "请选择玩家" })
+
+secZY91:Dropdown({
+    Title = "选择查看玩家",
+    Values = LY2_pOpts(true),
+    Callback = function(Value)
+        local n = LY2_pickName(Value)
+        LY2_tgt = n and Players:FindFirstChild(n) or nil
+    end
+})
+
+local LY2_pH = secZY91:Paragraph({ Title = "敌方血量", Desc = "无" })
+local LY2_pED = secZY91:Paragraph({ Title = "敌方伤害", Desc = "无" })
+local LY2_pMH = secZY91:Paragraph({ Title = "你的血量", Desc = "无" })
+local LY2_pMD = secZY91:Paragraph({ Title = "你的伤害", Desc = "无" })
+local LY2_pHK = secZY91:Paragraph({ Title = "击杀次数", Desc = "无" })
+
+task.spawn(function()
+    while true do
+        pcall(function()
+            LY2_setD(LY2_selfP, LY2_dsc(LP))
+            LY2_setD(LY2_tgtP, LY2_dsc(LY2_tgt))
+            if LY2_tgt then
+                local eh = LY2_calcHP(LY2_tgt)
+                local ed = LY2_calcDMG(LY2_tgt)
+                local mh = LY2_calcHP(LP)
+                local md = LY2_calcDMG(LP)
+                local hits = "无限"
+                if md > 0 then
+                    local n = math.ceil(eh / md)
+                    if n > 0 and n < 200 then hits = tostring(n) end
+                end
+                LY2_setD(LY2_pH, LY2_fmt(eh) .. "  完整 " .. LY2_ffull(eh))
+                LY2_setD(LY2_pED, LY2_fmt(ed) .. "  完整 " .. LY2_ffull(ed))
+                LY2_setD(LY2_pMH, LY2_fmt(mh) .. "  完整 " .. LY2_ffull(mh))
+                LY2_setD(LY2_pMD, LY2_fmt(md) .. "  完整 " .. LY2_ffull(md))
+                LY2_setD(LY2_pHK, hits)
+            end
+        end)
+        task.wait(0.5)
+    end
+end)
+
+
+
+
+
+local secZY5 = TabZY:Section({
+    Title = "杀戮光环",
+    Box = true,
+    Opened = false,
+})
+
+local LY2_WL = {}
+local LY2_wlP = secZY5:Paragraph({ Title = "白名单", Desc = "无" })
+
+secZY5:Dropdown({
+    Title = "添加白名单",
+    Values = LY2_pOpts(true),
+    Callback = function(Value)
+        local n = LY2_pickName(Value)
+        if n and not LY2_inL(LY2_WL, n) then table.insert(LY2_WL, n) end
+    end
+})
+
+secZY5:Button({
+    Title = "清空白名单",
+    Callback = function() LY2_WL = {} end
+})
+
+local LY2_ringRange = 20
+local LY2_ringC = {
+    { "暗红", Color3.fromRGB(138, 0, 0) }, { "红色", Color3.fromRGB(255, 0, 0) },
+    { "橙色", Color3.fromRGB(255, 128, 0) }, { "黄色", Color3.fromRGB(255, 230, 0) },
+    { "青柠", Color3.fromRGB(128, 255, 0) }, { "绿色", Color3.fromRGB(0, 200, 70) },
+    { "青色", Color3.fromRGB(0, 220, 255) }, { "蓝色", Color3.fromRGB(0, 100, 255) },
+    { "紫色", Color3.fromRGB(145, 70, 255) }, { "粉色", Color3.fromRGB(255, 80, 180) },
+    { "白色", Color3.fromRGB(255, 255, 255) }, { "黑色", Color3.fromRGB(0, 0, 0) },
+}
+local LY2_rNames = {}
+for _, c in ipairs(LY2_ringC) do table.insert(LY2_rNames, c[1]) end
+local LY2_rCol = LY2_ringC[1][2]
+local LY2_ringP = nil
+local LY2_ringCF = nil
+local LY2_frozen = false
+local LY2_ringOn = false
+local LY2_ringGen = 0
+
+local function LY2_rmRing()
+    if LY2_ringP then LY2_ringP:Destroy() LY2_ringP = nil end
+end
+
+local function LY2_mkRing()
+    LY2_rmRing()
+    local o = workspace:FindFirstChild("LY2Ring")
+    if o then o:Destroy() end
+    LY2_ringP = Instance.new("Part")
+    LY2_ringP.Name = "LY2Ring"
+    LY2_ringP.Shape = Enum.PartType.Cylinder
+    LY2_ringP.Material = Enum.Material.Neon
+    LY2_ringP.Color = LY2_rCol
+    LY2_ringP.Transparency = 0.6
+    LY2_ringP.Anchored = true
+    LY2_ringP.CanCollide = false
+    LY2_ringP.CanTouch = false
+    LY2_ringP.CanQuery = false
+    LY2_ringP.CastShadow = false
+    LY2_ringP.Size = Vector3.new(0.2, LY2_ringRange * 2, LY2_ringRange * 2)
+    if LY2_ringCF then LY2_ringP.CFrame = LY2_ringCF * CFrame.Angles(0, 0, math.rad(90)) end
+    LY2_ringP.Parent = workspace
+end
+
+local function LY2_updRing()
+    if LY2_ringP and LY2_ringCF then LY2_ringP.CFrame = LY2_ringCF * CFrame.Angles(0, 0, math.rad(90)) end
+end
+
+secZY5:Input({
+    Title = "攻击范围",
+    Desc = "输入1到140的数字",
+    Callback = function(value)
+        if value and value ~= "" and tonumber(value) then
+            LY2_ringRange = math.clamp(math.floor(tonumber(value)), 1, 140)
+            if LY2_ringP then LY2_ringP.Size = Vector3.new(0.2, LY2_ringRange * 2, LY2_ringRange * 2) end
+        end
+    end
+})
+
+secZY5:Dropdown({
+    Title = "光环颜色",
+    Values = LY2_rNames,
+    Value = LY2_rNames[1],
+    Callback = function(Value)
+        for _, c in ipairs(LY2_ringC) do
+            if c[1] == Value then
+                LY2_rCol = c[2]
+                if LY2_ringP then LY2_ringP.Color = c[2] end
+            end
+        end
+    end
+})
+
+secZY5:Toggle({
+    Title = "启动杀戮光环",
+    Desc = "自动攻击范围内所有玩家",
+    Value = false,
+    Callback = function(Value)
+        LY2_ringOn = Value
+        LY2_ringGen = LY2_ringGen + 1
+        local g = LY2_ringGen
+        if not Value then
+            LY2_rmRing()
+            return
+        end
+        local c, h, r = LY2_myRoot()
+        if r then LY2_ringCF = r.CFrame end
+        LY2_mkRing()
+        task.spawn(function()
+            while LY2_ringOn and LY2_ringGen == g do
+                local cc, ch, cr = LY2_myRoot()
+                if cr and not LY2_frozen then LY2_ringCF = cr.CFrame end
+                LY2_updRing()
+                LY2_RunS.RenderStepped:Wait()
+            end
+        end)
+        task.spawn(function()
+            while LY2_ringOn and LY2_ringGen == g do
+                if LY2_frozen or not LY2_ringCF then
+                    task.wait(0.05)
+                else
+                    local cen = LY2_ringCF
+                    local hit = false
+                    for _, p in ipairs(Players:GetPlayers()) do
+                        if not LY2_ringOn or LY2_ringGen ~= g then break end
+                        local tr = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+                        if p ~= LP and not LY2_inL(LY2_WL, p.Name) and LY2_alive(p) and not LY2_prot(p) and tr
+                            and (cen.Position - tr.Position).Magnitude <= LY2_ringRange then
+                            hit = true
+                            LY2_frozen = true
+                            LY2_ringCF = cen
+                            LY2_updRing()
+                            LY2_hitLimit(p, 4, function()
+                                local cu = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+                                return LY2_ringOn and LY2_ringGen == g and not LY2_inL(LY2_WL, p.Name)
+                                    and cu and (cen.Position - cu.Position).Magnitude <= LY2_ringRange
+                            end, 3.5)
+                            for _ = 1, 4 do
+                                local _, _, cr2 = LY2_myRoot()
+                                if cr2 then
+                                    cr2.CFrame = cen
+                                    cr2.AssemblyLinearVelocity = Vector3.zero
+                                    cr2.AssemblyAngularVelocity = Vector3.zero
+                                end
+                                LY2_ringCF = cen
+                                LY2_updRing()
+                                LY2_RunS.Heartbeat:Wait()
+                            end
+                            LY2_frozen = false
+                        end
+                    end
+                    if not hit then task.wait(0.05) end
+                end
+            end
+            LY2_frozen = false
+        end)
+    end
+})
+
+task.spawn(function()
+    while true do
+        pcall(function()
+            LY2_setD(LY2_wlP, #LY2_WL == 0 and "无" or table.concat(LY2_WL, " "))
+        end)
+        task.wait(0.5)
+    end
+end)
+
+local secZY6 = TabZY:Section({
+    Title = "换包",
+    Box = true,
+    Opened = false,
+})
+
+local function LY2_equipBest(order)
+    task.spawn(function()
+        local pf = LP:FindFirstChild("petsFolder")
+        local eqR = LY2_rE and LY2_rE:FindFirstChild("equipPetEvent")
+        if not pf or not eqR then
+            notify("找不到宠物数据")
+            return
+        end
+        for _, f in pairs(pf:GetChildren()) do
+            if f:IsA("Folder") then
+                for _, p in pairs(f:GetChildren()) do
+                    pcall(function() eqR:FireServer("unequipPet", p) end)
+                end
+            end
+        end
+        task.wait(0.2)
+        local byN = {}
+        for _, n in ipairs(order) do byN[n] = {} end
+        local uq = pf:FindFirstChild("Unique")
+        if uq then
+            for _, p in ipairs(uq:GetChildren()) do
+                if byN[p.Name] then table.insert(byN[p.Name], p) end
+            end
+        end
+        local ct = 0
+        for _, n in ipairs(order) do
+            for _, p in ipairs(byN[n]) do
+                if ct >= 9 then return end
+                pcall(function() eqR:FireServer("equipPet", p) end)
+                ct = ct + 1
+                task.wait(0.1)
+            end
+        end
+    end)
+end
+
+
+local LY3_packMode = nil
+
+secZY6:Toggle({
+    Title = "自动装备最佳伤害宠物",
+    Value = false,
+    Callback = function(Value)
+        LY3_packMode = Value and "damage" or nil
+    end
+})
+
+secZY6:Toggle({
+    Title = "自动装备最佳血量宠物",
+    Value = false,
+    Callback = function(Value)
+        LY3_packMode = Value and "hp" or nil
+    end
+})
+
+task.spawn(function()
+    while true do
+        if LY3_packMode == "damage" then
+            LY2_equipBest({ "Wild Wizard", "Chaos Sorcerer", "Mighty Monster", "Small Fry" })
+        elseif LY3_packMode == "hp" then
+            LY2_equipBest({ "Mighty Monster", "Small Fry", "Wild Wizard", "Chaos Sorcerer" })
+        end
+        task.wait(5)
+    end
+end)
+
+local secZY7 = TabZY:Section({
+    Title = "观战",
+    Box = true,
+    Opened = false,
+})
+
+local LY2_specT = nil
+local LY2_specOn = false
+
+local function LY2_stopSpec()
+    pcall(function()
+        local h = LP.Character and LP.Character:FindFirstChildOfClass("Humanoid")
+        if h then
+            LY2_Cam.CameraSubject = h
+            LY2_Cam.CameraType = Enum.CameraType.Custom
+        end
+    end)
+end
+
+secZY7:Dropdown({
+    Title = "选择玩家",
+    Values = LY2_pOpts(true),
+    Callback = function(Value)
+        local n = LY2_pickName(Value)
+        LY2_specT = n and Players:FindFirstChild(n) or nil
+    end
+})
+
+secZY7:Toggle({
+    Title = "开启观战",
+    Value = false,
+    Callback = function(Value)
+        LY2_specOn = Value
+        if not Value then LY2_stopSpec() return end
+        task.spawn(function()
+            while LY2_specOn do
+                pcall(function()
+                    local t = LY2_specT
+                    if t and t.Character then
+                        local h = t.Character:FindFirstChildOfClass("Humanoid")
+                        if h and LY2_Cam.CameraSubject ~= h then
+                            LY2_Cam.CameraSubject = h
+                            LY2_Cam.CameraType = Enum.CameraType.Custom
+                        end
+                    end
+                end)
+                task.wait(0.2)
+            end
+        end)
+    end
+})
+local secZY3 = TabZY:Section({
+    Title = "其他",
+    Box = true,
+    Opened = false,
+})
+
+secZY3:Button({
+    Title = "解锁全部通行证 仅客户端",
+    Callback = function()
+        pcall(function()
+            for i, v in ipairs(ReplicatedStorage.gamepassIds:GetChildren()) do
+                v.Parent = LP.ownedGamepasses
+            end
+        end)
+    end
+})
+
+secZY3:Toggle({
+    Title = "显示重生计数",
+    Value = false,
+    Callback = function(state)
+        getgenv().ShowRebirthTab10 = state
+        if state then
+            local PlayerGui = LP:WaitForChild("PlayerGui")
+            local old = PlayerGui:FindFirstChild("RebirthCounterUI_Tab10")
+            if old then old:Destroy() end
+            local gui = Instance.new("ScreenGui")
+            gui.Name = "RebirthCounterUI_Tab10"
+            gui.ResetOnSpawn = false
+            gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            gui.DisplayOrder = 999
+            gui.Parent = PlayerGui
+            local label = Instance.new("TextLabel")
+            label.Name = "RebirthLabel"
+            label.Size = UDim2.new(0, 200, 0, 40)
+            label.Position = UDim2.new(0, 240, 0, 20)
+            label.BackgroundTransparency = 1
+            label.BorderSizePixel = 0
+            label.TextColor3 = Color3.new(1, 1, 1)
+            label.TextStrokeTransparency = 0.5
+            label.TextStrokeColor3 = Color3.new(0, 0, 0)
+            label.TextSize = 24
+            label.Font = Enum.Font.GothamBold
+            label.TextXAlignment = Enum.TextXAlignment.Left
+            label.TextYAlignment = Enum.TextYAlignment.Center
+            label.Parent = gui
+            local dragging = false
+            local dragInput, dragStart, startPos = nil, nil, nil
+            label.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true
+                    dragStart = input.Position
+                    startPos = label.Position
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
+            end)
+            label.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                    dragInput = input
+                end
+            end)
+            game:GetService("UserInputService").InputChanged:Connect(function(input)
+                if input == dragInput and dragging then
+                    local delta = input.Position - dragStart
+                    label.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                end
+            end)
+            local function updateRebirth()
+                local success, rebirths = pcall(function()
+                    return LP.leaderstats.Rebirths.Value
+                end)
+                if success then
+                    label.Text = "重生:" .. tostring(rebirths)
+                else
+                    label.Text = "重生:???"
+                end
+            end
+            updateRebirth()
+            task.spawn(function()
+                while gui and gui.Parent and getgenv().ShowRebirthTab10 do
+                    task.wait(5)
+                    if gui and gui.Parent and getgenv().ShowRebirthTab10 then
+                        updateRebirth()
+                    end
+                end
+            end)
+            local leaderstats = LP:FindFirstChild("leaderstats")
+            if leaderstats then
+                local rebirthsStat = leaderstats:FindFirstChild("Rebirths")
+                if rebirthsStat then
+                    rebirthsStat.Changed:Connect(function()
+                        if getgenv().ShowRebirthTab10 then
+                            updateRebirth()
+                        end
+                    end)
+                end
+            end
+            LP.ChildAdded:Connect(function(child)
+                if child.Name == "leaderstats" then
+                    local rebirthsStat = child:WaitForChild("Rebirths", 5)
+                    if rebirthsStat then
+                        rebirthsStat.Changed:Connect(function()
+                            if getgenv().ShowRebirthTab10 then
+                                updateRebirth()
+                            end
+                        end)
+                        if getgenv().ShowRebirthTab10 then
+                            updateRebirth()
+                        end
+                    end
+                end
+            end)
+        else
+            local PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+            local old = PlayerGui:FindFirstChild("RebirthCounterUI_Tab10")
+            if old then old:Destroy() end
+        end
+    end
+})
+
+secZY3:Toggle({
+    Title = "显示蛋数量",
+    Value = false,
+    Callback = function(state)
+        getgenv().ShowEggCount = state
+        if state then
+            local PlayerGui = LP:WaitForChild("PlayerGui")
+            local oldGui = PlayerGui:FindFirstChild("EggCountUI_Standalone")
+            if oldGui then oldGui:Destroy() end
+            local gui = Instance.new("ScreenGui")
+            gui.Name = "EggCountUI_Standalone"
+            gui.ResetOnSpawn = false
+            gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+            gui.DisplayOrder = 997
+            gui.Parent = PlayerGui
+            local countLabel = Instance.new("TextLabel")
+            countLabel.Name = "EggCountLabel"
+            countLabel.Size = UDim2.new(0, 200, 0, 30)
+            countLabel.Position = UDim2.new(0, 240, 0, 65)
+            countLabel.BackgroundTransparency = 1
+            countLabel.BorderSizePixel = 0
+            countLabel.TextColor3 = Color3.fromRGB(144, 238, 144)
+            countLabel.TextStrokeTransparency = 0.5
+            countLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
+            countLabel.TextSize = 20
+            countLabel.Font = Enum.Font.GothamBold
+            countLabel.TextXAlignment = Enum.TextXAlignment.Left
+            countLabel.TextYAlignment = Enum.TextYAlignment.Center
+            countLabel.Text = "蛋剩余:0"
+            countLabel.Parent = gui
+            local dragging = false
+            local dragInput, dragStart, startPos = nil, nil, nil
+            countLabel.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true
+                    dragStart = input.Position
+                    startPos = countLabel.Position
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
+            end)
+            countLabel.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                    dragInput = input
+                end
+            end)
+            game:GetService("UserInputService").InputChanged:Connect(function(input)
+                if input == dragInput and dragging then
+                    local delta = input.Position - dragStart
+                    countLabel.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+                end
+            end)
+            local function countEggs()
+                local count = 0
+                pcall(function()
+                    for _, v in pairs(LP.Backpack:GetChildren()) do
+                        if v:IsA("Tool") and (v.Name:find("Protein Egg") or v.Name:find("蛋白质蛋")) then
+                            count = count + 1
+                        end
+                    end
+                    for _, v in pairs(LP.Character:GetChildren()) do
+                        if v:IsA("Tool") and (v.Name:find("Protein Egg") or v.Name:find("蛋白质蛋")) then
+                            count = count + 1
+                        end
+                    end
+                end)
+                return count
+            end
+            countLabel.Text = "蛋剩余:" .. countEggs()
+            task.spawn(function()
+                while getgenv().ShowEggCount and gui and gui.Parent do
+                    task.wait(2)
+                    if getgenv().ShowEggCount and gui and gui.Parent then
+                        countLabel.Text = "蛋剩余:" .. countEggs()
+                    end
+                end
+            end)
+        else
+            local PlayerGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+            local old = PlayerGui:FindFirstChild("EggCountUI_Standalone")
+            if old then old:Destroy() end
+        end
+    end
+})
+
+local secXL1 = TabXL:Section({
+    Title = "防打锻炼",
+    Box = true,
+    Opened = true,
+})
+
+secXL1:Toggle({
+    Title = "自动锻炼全部",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoTrainTriple = state
+        local oldPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        local part = Instance.new('Part', workspace)
+        part.Size = Vector3.new(500, 20, 530.1)
+        part.Position = Vector3.new(0, 100000, 133.15)
+        part.CanCollide = true
+        part.Anchored = true
+        while getgenv().AutoTrainTriple do
+            wait()
+            local char = game.Players.LocalPlayer.Character
+            if not char then
+                wait(1)
+                continue
+            end
+            char.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 50, 0)
+            for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v.ClassName == "Tool" and (v.Name == "Handstands" or v.Name == "Situps" or v.Name == "Pushups" or v.Name == "Weight") then
+                    if v:FindFirstChildOfClass("NumberValue") then
+                        v:FindFirstChildOfClass("NumberValue").Value = 0
+                    end
+                    repeat wait() until game.Players.LocalPlayer.Backpack:FindFirstChildOfClass("Tool")
+                    char:WaitForChild("Humanoid"):EquipTool(v)
+                    game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                end
+            end
+        end
+        part:Destroy()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char.HumanoidRootPart.CFrame = oldPos
+            char:WaitForChild("Humanoid"):UnequipTools()
+        end
+    end
+})
+
+secXL1:Toggle({
+    Title = "自动举哑铃",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoWeight = state
+        local oldPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        local part = Instance.new('Part', workspace)
+        part.Size = Vector3.new(500, 20, 530.1)
+        part.Position = Vector3.new(0, 100000, 133.15)
+        part.CanCollide = true
+        part.Anchored = true
+        while getgenv().AutoWeight do
+            wait()
+            local char = game.Players.LocalPlayer.Character
+            if not char then
+                wait(1)
+                continue
+            end
+            char.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 50, 0)
+            for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v.ClassName == "Tool" and v.Name == "Weight" then
+                    v.Parent = char
+                end
+            end
+            game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+        end
+        part:Destroy()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char.HumanoidRootPart.CFrame = oldPos
+            char:WaitForChild("Humanoid"):UnequipTools()
+        end
+    end
+})
+
+secXL1:Toggle({
+    Title = "自动俯卧撑",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoPushup = state
+        local oldPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        local part = Instance.new('Part', workspace)
+        part.Size = Vector3.new(500, 20, 530.1)
+        part.Position = Vector3.new(0, 100000, 133.15)
+        part.CanCollide = true
+        part.Anchored = true
+        while getgenv().AutoPushup do
+            wait()
+            local char = game.Players.LocalPlayer.Character
+            if not char then
+                wait(1)
+                continue
+            end
+            char.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 50, 0)
+            for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v.ClassName == "Tool" and v.Name == "Pushups" then
+                    v.Parent = char
+                end
+            end
+            game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+        end
+        part:Destroy()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char.HumanoidRootPart.CFrame = oldPos
+            char:WaitForChild("Humanoid"):UnequipTools()
+        end
+    end
+})
+
+secXL1:Toggle({
+    Title = "自动仰卧起坐",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoSitup = state
+        local oldPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        local part = Instance.new('Part', workspace)
+        part.Size = Vector3.new(500, 20, 530.1)
+        part.Position = Vector3.new(0, 100000, 133.15)
+        part.CanCollide = true
+        part.Anchored = true
+        while getgenv().AutoSitup do
+            wait()
+            local char = game.Players.LocalPlayer.Character
+            if not char then
+                wait(1)
+                continue
+            end
+            char.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 50, 0)
+            for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v.ClassName == "Tool" and v.Name == "Situps" then
+                    v.Parent = char
+                end
+            end
+            game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+        end
+        part:Destroy()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char.HumanoidRootPart.CFrame = oldPos
+            char:WaitForChild("Humanoid"):UnequipTools()
+        end
+    end
+})
+
+secXL1:Toggle({
+    Title = "自动倒立",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoHandstand = state
+        local oldPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
+        local part = Instance.new('Part', workspace)
+        part.Size = Vector3.new(500, 20, 530.1)
+        part.Position = Vector3.new(0, 100000, 133.15)
+        part.CanCollide = true
+        part.Anchored = true
+        while getgenv().AutoHandstand do
+            wait()
+            local char = game.Players.LocalPlayer.Character
+            if not char then
+                wait(1)
+                continue
+            end
+            char.HumanoidRootPart.CFrame = part.CFrame + Vector3.new(0, 50, 0)
+            for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                if v.ClassName == "Tool" and v.Name == "Handstands" then
+                    v.Parent = char
+                end
+            end
+            game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+        end
+        part:Destroy()
+        local char = game.Players.LocalPlayer.Character
+        if char then
+            char.HumanoidRootPart.CFrame = oldPos
+            char:WaitForChild("Humanoid"):UnequipTools()
+        end
+    end
+})
+
+local secXL2 = TabXL:Section({
+    Title = "不防打锻炼",
+    Box = true,
+    Opened = false,
+})
+
+secXL2:Toggle({
+    Title = "自动举哑铃",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoWeight = state
+        spawn(function()
+            while getgenv().AutoWeight do
+                pcall(function()
+                    local char = game.Players.LocalPlayer.Character
+                    if not char then
+                        wait(2)
+                    else
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v.ClassName == "Tool" and v.Name == "Weight" then
+                                v.Parent = char
+                                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                                wait(0.03)
+                                v.Parent = game.Players.LocalPlayer.Backpack
+                                wait(0.2)
+                            end
+                        end
+                    end
+                end)
+                wait()
+            end
+            if not getgenv().AutoWeight then
+                for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if v:IsA("Tool") and v.Name == "Weight" then
+                        v.Parent = game.Players.LocalPlayer.Backpack
+                    end
+                end
+            end
+        end)
+    end
+})
+
+secXL2:Toggle({
+    Title = "自动俯卧撑",
+    Value = false,
+    Callback = function(Value)
+        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if v.ClassName == "Tool" and v.Name == "Pushups" then
+                v.Parent = game.Players.LocalPlayer.Character
+                wait()
+            end
+        end
+        if Value then
+            local AutoRep = Value
+            while AutoRep do
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                wait()
+            end
+        end
+    end
+})
+
+secXL2:Toggle({
+    Title = "自动仰卧起坐",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoSitups = state
+        spawn(function()
+            while getgenv().AutoSitups do
+                pcall(function()
+                    local char = game.Players.LocalPlayer.Character
+                    if not char then
+                        wait(2)
+                    else
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v.ClassName == "Tool" and v.Name == "Situps" then
+                                v.Parent = char
+                                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                                wait(0.03)
+                                v.Parent = game.Players.LocalPlayer.Backpack
+                                wait(0.2)
+                            end
+                        end
+                    end
+                end)
+                wait()
+            end
+            if not getgenv().AutoSitups then
+                for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if v:IsA("Tool") and v.Name == "Situps" then
+                        v.Parent = game.Players.LocalPlayer.Backpack
+                    end
+                end
+            end
+        end)
+    end
+})
+
+secXL2:Toggle({
+    Title = "自动倒立",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoHandstands = state
+        spawn(function()
+            while getgenv().AutoHandstands do
+                pcall(function()
+                    local char = game.Players.LocalPlayer.Character
+                    if not char then
+                        wait(2)
+                    else
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v.ClassName == "Tool" and v.Name == "Handstands" then
+                                v.Parent = char
+                                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                                wait(0.03)
+                                v.Parent = game.Players.LocalPlayer.Backpack
+                                wait(0.2)
+                            end
+                        end
+                    end
+                end)
+                wait()
+            end
+            if not getgenv().AutoHandstands then
+                for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if v:IsA("Tool") and v.Name == "Handstands" then
+                        v.Parent = game.Players.LocalPlayer.Backpack
+                    end
+                end
+            end
+        end)
+    end
+})
+
+secXL2:Toggle({
+    Title = "自动锻炼全部",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoAllTrain = state
+        spawn(function()
+            while getgenv().AutoAllTrain do
+                pcall(function()
+                    local char = game.Players.LocalPlayer.Character
+                    if not char then
+                        wait(2)
+                    else
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v.ClassName == "Tool" and (v.Name == "Weight" or v.Name == "Handstands" or v.Name == "Pushups" or v.Name == "Situps") then
+                                v.Parent = char
+                                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                                wait(0.02)
+                                v.Parent = game.Players.LocalPlayer.Backpack
+                                wait(0.2)
+                            end
+                        end
+                    end
+                end)
+                wait()
+            end
+            if not getgenv().AutoAllTrain then
+                for i, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                    if v:IsA("Tool") and (v.Name == "Weight" or v.Name == "Handstands" or v.Name == "Pushups" or v.Name == "Situps") then
+                        v.Parent = game.Players.LocalPlayer.Backpack
+                    end
+                end
+            end
+        end)
+    end
+})
+
+local secXL3 = TabXL:Section({
+    Title = "健身房 沙滩",
+    Box = true,
+    Opened = false,
+})
+
+secXL3:Toggle({
+    Title = "沙滩跑步机10",
+    Value = false,
+    Callback = function(state)
+        getgenv().PPJ10 = state
+        while getgenv().PPJ10 do
+            wait()
+            local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+            local rootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+            humanoid.WalkSpeed = 10
+            rootPart.CFrame = CFrame.new(238.671112, 5.40315914, 387.713165, -0.0160072874, -2.90710176e-08, -0.99987185, -3.3434191e-09, 1, -2.90212157e-08, 0.99987185, 2.87843993e-09, -0.0160072874)
+            local RunService = game:GetService("RunService")
+            local Players = game:GetService("Players")
+            local localPlayer = Players.LocalPlayer
+            RunService:BindToRenderStep("move", Enum.RenderPriority.Character.Value + 1, function()
+                if localPlayer.Character then
+                    local hum = localPlayer.Character:FindFirstChild("Humanoid")
+                    if hum then
+                        hum:Move(Vector3.new(10000, 0, -1), true)
+                    end
+                end
+            end)
+        end
+        if not getgenv().PPJ10 then
+            local RunService = game:GetService("RunService")
+            RunService:UnbindFromRenderStep("move")
+        end
+    end
+})
+
+secXL3:Toggle({
+    Title = "沙滩深蹲架",
+    Value = false,
+    Callback = function(state)
+        getgenv().SquatBeach = state
+        if getgenv().SquatBeach then
+            spawn(function()
+                while getgenv().SquatBeach do
+                    pcall(function()
+                        if game.Players.LocalPlayer.leaderstats.Strength.Value >= 1000 then
+                            if game.Players.LocalPlayer.machineInUse.Value == nil then
+                                game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(232.627625, 3.67689133, 96.3039856, -0.963445187, -7.78685845e-08, -0.267905563, -7.92865222e-08, 1, -5.52570167e-09, 0.267905563, 1.5917589e-08, -0.963445187)
+                                wait(0.00001)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                wait(0.00001)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            else
+                                local A_1 = "rep"
+                                local A_2 = game:GetService("Workspace").machinesFolder["Squat Rack"].interactSeat
+                                local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                                Event:FireServer(A_1, A_2)
+                            end
+                        end
+                    end)
+                    wait()
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL3:Toggle({
+    Title = "沙滩引体向上",
+    Value = false,
+    Callback = function(state)
+        getgenv().PullupBeach = state
+        if getgenv().PullupBeach then
+            spawn(function()
+                while getgenv().PullupBeach do
+                    pcall(function()
+                        if game.Players.LocalPlayer.leaderstats.Strength.Value >= 1000 then
+                            if game.Players.LocalPlayer.machineInUse.Value == nil then
+                                game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-185.157745, 5.81071186, 104.747154, 0.227061391, -8.2363325e-09, 0.97388047, 5.58502826e-08, 1, -4.56432803e-09, -0.97388047, 5.54278827e-08, 0.227061391)
+                                wait(0.00001)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                wait(0.00001)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            else
+                                local A_1 = "rep"
+                                local A_2 = game:GetService("Workspace").machinesFolder["Legends Pullup"].interactSeat
+                                local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                                Event:FireServer(A_1, A_2)
+                            end
+                        end
+                    end)
+                    wait(0.00001)
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL3:Toggle({
+    Title = "沙滩投掷石",
+    Value = false,
+    Callback = function(state)
+        getgenv().ThrowBeach = state
+        if getgenv().ThrowBeach then
+            spawn(function()
+                while getgenv().ThrowBeach do
+                    pcall(function()
+                        if game.Players.LocalPlayer.leaderstats.Strength.Value >= 3000 then
+                            if game.Players.LocalPlayer.machineInUse.Value == nil then
+                                game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-91.6730804, 3.67689133, -292.42868, -0.221022144, -2.21041621e-08, -0.975268781, 1.21414407e-08, 1, -2.54162646e-08, 0.975268781, -1.7458726e-08, -0.221022144)
+                                wait(0.0001)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                wait(0.0001)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            else
+                                local A_1 = "rep"
+                                local A_2 = game:GetService("Workspace").machinesFolder.Deadlift.interactSeat
+                                local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                                Event:FireServer(A_1, A_2)
+                            end
+                        end
+                    end)
+                    wait()
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+local secXL4 = TabXL:Section({
+    Title = "健身房 冰霜",
+    Box = true,
+    Opened = false,
+})
+
+secXL4:Toggle({
+    Title = "冰霜健身房跑步机2000",
+    Value = false,
+    Callback = function(state)
+        if game.Players.LocalPlayer.Agility.Value >= 2000 then
+            getgenv().PPJ2000 = state
+            while getgenv().PPJ2000 do
+                wait()
+                local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+                local rootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                humanoid.WalkSpeed = 10
+                rootPart.CFrame = CFrame.new(-3005.37866, 14.3221855, -464.697876, -0.015773816, -1.38508964e-08, 0.999875605, -5.13225586e-08, 1, 1.30429667e-08, -0.999875605, -5.11104332e-08, -0.015773816)
+                local RunService = game:GetService("RunService")
+                local Players = game:GetService("Players")
+                local localPlayer = Players.LocalPlayer
+                RunService:BindToRenderStep("move", Enum.RenderPriority.Character.Value + 1, function()
+                    if localPlayer.Character then
+                        local hum = localPlayer.Character:FindFirstChild("Humanoid")
+                        if hum then
+                            hum:Move(Vector3.new(10000, 0, -1), true)
+                        end
+                    end
+                end)
+            end
+        end
+        if not getgenv().PPJ2000 then
+            local RunService = game:GetService("RunService")
+            RunService:UnbindFromRenderStep("move")
+        end
+    end
+})
+
+secXL4:Toggle({
+    Title = "霜冻健身房深蹲架",
+    Value = false,
+    Callback = function(state)
+        getgenv().SquatFrostGym = state
+        if getgenv().SquatFrostGym then
+            spawn(function()
+                while getgenv().SquatFrostGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.leaderstats.Strength.Value >= 4000 then
+                            if game.Players.LocalPlayer.machineInUse.Value == nil then
+                                game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-2629.13818, 3.36860609, -609.827454, -0.995664716, -2.67296816e-08, -0.0930150598, -1.90042453e-08, 1, -8.39415222e-08, 0.0930150598, -8.18099295e-08, -0.995664716)
+                                wait(0.00001)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                wait(0.00001)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            else
+                                local A_1 = "rep"
+                                local A_2 = game:GetService("Workspace").machinesFolder["Squat Rack"].interactSeat
+                                local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                                Event:FireServer(A_1, A_2)
+                            end
+                        end
+                    end)
+                    wait(0.00001)
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+local secXL5 = TabXL:Section({
+    Title = "健身房 神话",
+    Box = true,
+    Opened = false,
+})
+
+secXL5:Toggle({
+    Title = "神话健身房跑步机2000",
+    Value = false,
+    Callback = function(state)
+        if game.Players.LocalPlayer.Agility.Value >= 2000 then
+            getgenv().SHPPJ2000 = state
+            while getgenv().SHPPJ2000 do
+                wait()
+                local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+                local rootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                humanoid.WalkSpeed = 10
+                rootPart.CFrame = CFrame.new(2571.23706, 15.6896839, 898.650391, 0.999968231, 2.23868635e-09, -0.00797206629, -1.73198844e-09, 1, 6.35660768e-08, 0.00797206629, -6.3550246e-08, 0.999968231)
+                local RunService = game:GetService("RunService")
+                local Players = game:GetService("Players")
+                local localPlayer = Players.LocalPlayer
+                RunService:BindToRenderStep("move", Enum.RenderPriority.Character.Value + 1, function()
+                    if localPlayer.Character then
+                        local hum = localPlayer.Character:FindFirstChild("Humanoid")
+                        if hum then
+                            hum:Move(Vector3.new(10000, 0, -1), true)
+                        end
+                    end
+                end)
+            end
+        end
+        if not getgenv().SHPPJ2000 then
+            local RunService = game:GetService("RunService")
+            RunService:UnbindFromRenderStep("move")
+        end
+    end
+})
+
+secXL5:Toggle({
+    Title = "神话健身房引体向上",
+    Value = false,
+    Callback = function(state)
+        getgenv().PullupMythGym = state
+        if getgenv().PullupMythGym then
+            spawn(function()
+                while getgenv().PullupMythGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.leaderstats.Strength.Value >= 4000 then
+                            if game.Players.LocalPlayer.machineInUse.Value == nil then
+                                game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(2315.82104, 5.81071281, 847.153076, 0.993555248, 6.99809632e-08, 0.113349125, -7.05298859e-08, 1, 8.32554692e-10, -0.113349125, -8.82168916e-09, 0.993555248)
+                                wait(0.00001)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                wait(0.00001)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            else
+                                local A_1 = "rep"
+                                local A_2 = game:GetService("Workspace").machinesFolder["Legends Pullup"].interactSeat
+                                local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                                Event:FireServer(A_1, A_2)
+                            end
+                        end
+                    end)
+                    wait(0.00001)
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL5:Toggle({
+    Title = "神话健身房投掷石",
+    Value = false,
+    Callback = function(state)
+        getgenv().ThrowMythGym = state
+        if getgenv().ThrowMythGym then
+            spawn(function()
+                while getgenv().ThrowMythGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.leaderstats.Strength.Value >= 10000 then
+                            if game.Players.LocalPlayer.machineInUse.Value == nil then
+                                game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(2486.01733, 3.67689276, 1237.89331, 0.883595645, -2.06135038e-08, -0.468250751, -3.3286871e-09, 1, -5.03036404e-08, 0.468250751, 4.60067362e-08, 0.883595645)
+                                wait(0.0001)
+                                local vim = game:GetService("VirtualInputManager")
+                                vim:SendKeyEvent(true, "E", false, game)
+                                wait(0.0001)
+                                vim:SendKeyEvent(false, "E", false, game)
+                            else
+                                local A_1 = "rep"
+                                local A_2 = game:GetService("Workspace").machinesFolder.Deadlift.interactSeat
+                                local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                                Event:FireServer(A_1, A_2)
+                            end
+                        end
+                    end)
+                    wait()
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+local secXL6 = TabXL:Section({
+    Title = "健身房 永恒 传奇",
+    Box = true,
+    Opened = false,
+})
+
+secXL6:Toggle({
+    Title = "永恒健身房跑步机3500",
+    Value = false,
+    Callback = function(state)
+        if game.Players.LocalPlayer.Agility.Value >= 3500 then
+            getgenv().YHPPJ3500 = state
+            while getgenv().YHPPJ3500 do
+                wait()
+                local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+                local rootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                humanoid.WalkSpeed = 10
+                rootPart.CFrame = CFrame.new(-7077.79102, 29.6702118, -1457.59961, -0.0322036594, -3.31122768e-10, 0.99948132, -6.44344267e-09, 1, 1.23684493e-10, -0.99948132, -6.43611742e-09, -0.0322036594)
+                local RunService = game:GetService("RunService")
+                local Players = game:GetService("Players")
+                local localPlayer = Players.LocalPlayer
+                RunService:BindToRenderStep("move", Enum.RenderPriority.Character.Value + 1, function()
+                    if localPlayer.Character then
+                        local hum = localPlayer.Character:FindFirstChild("Humanoid")
+                        if hum then
+                            hum:Move(Vector3.new(10000, 0, -1), true)
+                        end
+                    end
+                end)
+            end
+        end
+        if not getgenv().YHPPJ3500 then
+            local RunService = game:GetService("RunService")
+            RunService:UnbindFromRenderStep("move")
+        end
+    end
+})
+
+secXL6:Toggle({
+    Title = "传奇健身房跑步机3000",
+    Value = false,
+    Callback = function(state)
+        if game.Players.LocalPlayer.Agility.Value >= 3000 then
+            getgenv().CQPPJ3000 = state
+            while getgenv().CQPPJ3000 do
+                wait()
+                local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+                local rootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                humanoid.WalkSpeed = 10
+                rootPart.CFrame = CFrame.new(4370.82812, 999.358704, -3621.42773, -0.960604727, -8.41949266e-09, -0.27791819, -6.12478646e-09, 1, -9.12496567e-09, 0.27791819, -7.06329528e-09, -0.960604727)
+                local RunService = game:GetService("RunService")
+                local Players = game:GetService("Players")
+                local localPlayer = Players.LocalPlayer
+                RunService:BindToRenderStep("move", Enum.RenderPriority.Character.Value + 1, function()
+                    if localPlayer.Character then
+                        local hum = localPlayer.Character:FindFirstChild("Humanoid")
+                        if hum then
+                            hum:Move(Vector3.new(10000, 0, -1), true)
+                        end
+                    end
+                end)
+            end
+        end
+        if not getgenv().CQPPJ3000 then
+            local RunService = game:GetService("RunService")
+            RunService:UnbindFromRenderStep("move")
+        end
+    end
+})
+
+secXL6:Toggle({
+    Title = "传奇健身房深蹲架",
+    Value = false,
+    Callback = function(state)
+        getgenv().SquatLegendGym = state
+        if getgenv().SquatLegendGym then
+            spawn(function()
+                while getgenv().SquatLegendGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.machineInUse.Value == nil then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(4443.04443, 987.521484, -4061.12988, 0.83309716, 3.33018835e-09, 0.553126693, -2.87759438e-09, 1, -1.68654424e-09, -0.553126693, -1.86619012e-10, 0.83309716)
+                            wait(0.00001)
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendKeyEvent(true, "E", false, game)
+                            wait(0.00001)
+                            vim:SendKeyEvent(false, "E", false, game)
+                        else
+                            local A_1 = "rep"
+                            local A_2 = game:GetService("Workspace").machinesFolder["Squat Rack"].interactSeat
+                            local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                            Event:FireServer(A_1, A_2)
+                        end
+                    end)
+                    wait(0.00001)
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL6:Toggle({
+    Title = "传奇健身房投掷石",
+    Value = false,
+    Callback = function(state)
+        getgenv().ThrowLegendGym = state
+        if getgenv().ThrowLegendGym then
+            spawn(function()
+                while getgenv().ThrowLegendGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.machineInUse.Value == nil then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(4189.96143, 987.829773, -3903.0166, 0.422592968, 0, 0.906319559, 0, 1, 0, -0.906319559, 0, 0.422592968)
+                            wait(0.0001)
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendKeyEvent(true, "E", false, game)
+                            wait(0.0001)
+                            vim:SendKeyEvent(false, "E", false, game)
+                        else
+                            local A_1 = "rep"
+                            local A_2 = game:GetService("Workspace").machinesFolder.Deadlift.interactSeat
+                            local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                            Event:FireServer(A_1, A_2)
+                        end
+                    end)
+                    wait()
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+local secXL7 = TabXL:Section({
+    Title = "健身房 肌肉王 丛林",
+    Box = true,
+    Opened = false,
+})
+
+secXL7:Toggle({
+    Title = "肌肉之王健身房深蹲架",
+    Value = false,
+    Callback = function(state)
+        getgenv().SquatMuscleGym = state
+        if getgenv().SquatMuscleGym then
+            spawn(function()
+                while getgenv().SquatMuscleGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.machineInUse.Value == nil then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-8757.37012, 13.2186356, -6051.24365, -0.902269304, 1.63610299e-08, -0.431172907, 1.71076486e-08, 1, 2.14606288e-09, 0.431172907, -5.44002754e-09, -0.902269304)
+                            wait(0.00001)
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendKeyEvent(true, "E", false, game)
+                            wait(0.00001)
+                            vim:SendKeyEvent(false, "E", false, game)
+                        else
+                            local A_1 = "rep"
+                            local A_2 = game:GetService("Workspace").machinesFolder["Squat Rack"].interactSeat
+                            local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                            Event:FireServer(A_1, A_2)
+                        end
+                    end)
+                    wait(0.00001)
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL7:Toggle({
+    Title = "肌肉之王投掷石",
+    Value = false,
+    Callback = function(state)
+        getgenv().ThrowMuscleGym = state
+        if getgenv().ThrowMuscleGym then
+            spawn(function()
+                while getgenv().ThrowMuscleGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.machineInUse.Value == nil then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-8935.4384765625, 13.855730056762695, -5693.66748046875)
+                            wait(0.0001)
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendKeyEvent(true, "E", false, game)
+                            wait(0.0001)
+                            vim:SendKeyEvent(false, "E", false, game)
+                        else
+                            local A_1 = "rep"
+                            local A_2 = game:GetService("Workspace").machinesFolder.Deadlift.interactSeat
+                            local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                            Event:FireServer(A_1, A_2)
+                        end
+                    end)
+                    wait()
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL7:Toggle({
+    Title = "丛林健身房跑步机20000",
+    Value = false,
+    Callback = function(state)
+        if game.Players.LocalPlayer.Agility.Value >= 20000 then
+            getgenv().JungleTreadmill = state
+            while getgenv().JungleTreadmill do
+                wait()
+                local humanoid = game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
+                local rootPart = game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+                humanoid.WalkSpeed = 10
+                rootPart.CFrame = CFrame.new(-8138.67919921875, 28.270538330078125, 2833.511474609375, -0.960604727, -8.41949266e-09, -0.27791819, -6.12478646e-09, 1, -9.12496567e-09, 0.27791819, -7.06329528e-09, -0.960604727)
+                local RunService = game:GetService("RunService")
+                local Players = game:GetService("Players")
+                local localPlayer = Players.LocalPlayer
+                RunService:BindToRenderStep("JungleRun", Enum.RenderPriority.Character.Value + 1, function()
+                    if localPlayer.Character then
+                        local hum = localPlayer.Character:FindFirstChild("Humanoid")
+                        if hum then
+                            hum:Move(Vector3.new(10000, 0, -1), true)
+                        end
+                    end
+                end)
+            end
+        end
+        if not getgenv().JungleTreadmill then
+            local RunService = game:GetService("RunService")
+            RunService:UnbindFromRenderStep("JungleRun")
+        end
+    end
+})
+
+secXL7:Toggle({
+    Title = "丛林健身房深蹲架",
+    Value = false,
+    Callback = function(state)
+        getgenv().SquatJungleGym = state
+        if getgenv().SquatJungleGym then
+            spawn(function()
+                while getgenv().SquatJungleGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.machineInUse.Value == nil then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-8383.45, 3.43 + 80, 2854.54, -0.902269304, 1.63610299e-08, -0.431172907, 1.71076486e-08, 1, 2.14606288e-09, 0.431172907, -5.44002754e-09, -0.902269304)
+                            wait(0.00001)
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendKeyEvent(true, "E", false, game)
+                            wait(0.00001)
+                            vim:SendKeyEvent(false, "E", false, game)
+                        else
+                            local A_1 = "rep"
+                            local A_2 = game:GetService("Workspace").machinesFolder["Squat Rack"].interactSeat
+                            local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                            Event:FireServer(A_1, A_2)
+                        end
+                    end)
+                    wait(0.00001)
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+secXL7:Toggle({
+    Title = "丛林健身房投掷石",
+    Value = false,
+    Callback = function(state)
+        getgenv().ThrowJungleGym = state
+        if getgenv().ThrowJungleGym then
+            spawn(function()
+                while getgenv().ThrowJungleGym do
+                    pcall(function()
+                        if game.Players.LocalPlayer.machineInUse.Value == nil then
+                            game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-8620.99, 89.81, 2673.54, -0.902269304, 1.63610299e-08, -0.431172907, 1.71076486e-08, 1, 2.14606288e-09, 0.431172907, -5.44002754e-09, -0.902269304)
+                            wait(0.0001)
+                            local vim = game:GetService("VirtualInputManager")
+                            vim:SendKeyEvent(true, "E", false, game)
+                            wait(0.0001)
+                            vim:SendKeyEvent(false, "E", false, game)
+                        else
+                            local A_1 = "rep"
+                            local A_2 = game:GetService("Workspace").machinesFolder.Throw.interactSeat
+                            local Event = game:GetService("Players").LocalPlayer.muscleEvent
+                            Event:FireServer(A_1, A_2)
+                        end
+                    end)
+                    wait()
+                end
+            end)
+        else
+            pcall(function()
+                local char = game.Players.LocalPlayer.Character
+                if char then
+                    char:WaitForChild("Humanoid").Jump = true
+                end
+            end)
+        end
+    end
+})
+
+local secXL8 = TabXL:Section({
+    Title = "消耗品",
+    Box = true,
+    Opened = false,
+})
+
+
+local LY3_EEgg = false
+local LY3_EBoost = false
+
+secXL8:Toggle({
+    Title = "吃光蛋白蛋",
+    Value = false,
+    Callback = function(Value) LY3_EEgg = Value end
+})
+
+secXL8:Toggle({
+    Title = "吃光全部增益",
+    Desc = "消耗所有饮食物品 会卡顿",
+    Value = false,
+    Callback = function(Value) LY3_EBoost = Value end
+})
+
+task.spawn(function()
+    while true do
+        if LY3_EEgg then
+            pcall(function()
+                local c = LP.Character
+                local bp = LP:FindFirstChild("Backpack")
+                local eg = (c and c:FindFirstChild("Protein Egg")) or (bp and bp:FindFirstChild("Protein Egg"))
+                if eg and LY2_musEv then LY2_musEv:FireServer("proteinEgg", eg) end
+            end)
+            task.wait(0.25)
+        else
+            task.wait(1)
+        end
+    end
+end)
+
+task.spawn(function()
+    local items = { "Tropical Shake", "Energy Shake", "Protein Bar", "TOUGH Bar", "Protein Shake", "ULTRA Shake", "Energy Bar" }
+    while true do
+        if LY3_EBoost then
+            for _, nm in ipairs(items) do
+                pcall(function()
+                    local c = LP.Character
+                    local bp = LP:FindFirstChild("Backpack")
+                    local tl = (c and c:FindFirstChild(nm)) or (bp and bp:FindFirstChild(nm))
+                    if tl and LY2_musEv then
+                        local pts = {}
+                        for w in nm:gmatch("%S+") do table.insert(pts, w:lower()) end
+                        for i = 2, #pts do
+                            pts[i] = pts[i]:sub(1, 1):upper() .. pts[i]:sub(2)
+                        end
+                        for _ = 1, 10 do LY2_musEv:FireServer(table.concat(pts, ""), tl) end
+                    end
+                end)
+            end
+        end
+        task.wait(0.1)
+    end
+end)
+
+
+secXL8:Button({
+    Title = "收集宝石",
+    Callback = function()
+        local jk = {}
+        for _, v in pairs(ReplicatedStorage.chestRewards:GetDescendants()) do
+            if v.Name ~= "Light Karma Chest" and v.Name ~= "Evil Karma Chest" then
+                table.insert(jk, v.Name)
+            end
+        end
+        for i = 1, #jk do
+            wait(2)
+            ReplicatedStorage.rEvents.checkChestRemote:InvokeServer(jk[i])
+        end
+    end
+})
+
+local secST1 = TabST:Section({
+    Title = "传送石头模式",
+    Box = true,
+    Opened = true,
+})
+
+secST1:Dropdown({
+    Title = "选择石头",
+    Values = rockshow1CN,
+    Value = "空",
+    Callback = function(Value)
+        Interstellar.Rocks = rockNamesReverse[Value] or Value
+    end
+})
+
+secST1:Toggle({
+    Title = "自动打石头",
+    Desc = "把石头传送过来打",
+    Value = false,
+    Callback = function(state)
+        AutoStates.rock = state
+        spawn(function()
+            local OldPOS = game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.CFrame
+            while AutoStates.rock do
+                wait()
+                pcall(function()
+                    for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                        if v:IsA("Tool") and v.Name == "Punch" then
+                            game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                        end
+                    end
+                    for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                        if h:IsA("Tool") and h.Name == "Punch" then
+                            h:Activate()
+                        end
+                    end
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.CFrame = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, -3)
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.CanCollide = false
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.Transparency = 100
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.rockGui.rockName.Visible = false
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.rockGui.statLabel.Visible = false
+                end)
+            end
+            if not AutoStates.rock then
+                pcall(function()
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.CFrame = CFrame.new(OldPOS)
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.CanCollide = true
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.Transparency = 0
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.rockGui.rockName.Visible = true
+                    game:GetService("Workspace").machinesFolder[Interstellar.Rocks].Rock.rockGui.statLabel.Visible = true
+                end)
+            end
+        end)
+    end
+})
+
+local secST2 = TabST:Section({
+    Title = "远程隔空模式",
+    Box = true,
+    Opened = false,
+})
+
+secST2:Dropdown({
+    Title = "选择石头",
+    Values = rockshow2CN,
+    Value = "空",
+    Callback = function(Value)
+        Interstellar.Rock = rockNamesReverse[Value] or Value
+    end
+})
+
+secST2:Toggle({
+    Title = "自动打石头",
+    Desc = "远程隔空",
+    Value = false,
+    Callback = function(state)
+        AutoStates.rocks = state
+        spawn(function()
+            while AutoStates.rocks do
+                wait()
+                pcall(function()
+                    for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                        if v:IsA("Tool") and v.Name == "Punch" then
+                            game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                        end
+                    end
+                    for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                        if h:IsA("Tool") and h.Name == "Punch" then
+                            h:Activate()
+                        end
+                    end
+                    firetouchinterest(game.workspace.machinesFolder[Interstellar.Rock].Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                    firetouchinterest(game.workspace.machinesFolder[Interstellar.Rock].Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                end)
+            end
+            if not AutoStates.rocks then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+local secST3 = TabST:Section({
+    Title = "定点石头 耐力够才能开",
+    Box = true,
+    Opened = false,
+})
+
+secST3:Toggle({
+    Title = "石头0",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK0 = state
+        spawn(function()
+            while getgenv().RK0 do
+                wait()
+                pcall(function()
+                    for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                        if v:IsA("Tool") and v.Name == "Punch" then
+                            game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                        end
+                    end
+                    for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                        if h:IsA("Tool") and h.Name == "Punch" then
+                            h:Activate()
+                        end
+                    end
+                    game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(7.60643005, 4.02632904, 2104.54004, -0.23040159, -8.53662385e-08, -0.973095655, -4.68743764e-08, 1, -7.66279342e-08, 0.973095655, 2.79580536e-08, -0.23040159)
+                end)
+            end
+            if not getgenv().RK0 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头10",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK10 = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 10 then
+                while getgenv().RK10 do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-157.680908, 3.72453046, 434.871185, 0.923298299, -1.81774684e-09, -0.384083599, 3.45247031e-09, 1, 3.56670582e-09, 0.384083599, -4.61917082e-09, 0.923298299)
+                    end)
+                end
+            end
+            if not getgenv().RK10 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头100",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK100 = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 100 then
+                while getgenv().RK100 do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(162.233673, 3.66615629, -164.686783, -0.921312928, -1.80826774e-07, -0.38882193, -9.13036544e-08, 1, -2.48719346e-07, 0.38882193, -1.93647494e-07, -0.921312928)
+                    end)
+                end
+            end
+            if not getgenv().RK100 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头5000",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK5000 = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 5000 then
+                while getgenv().RK5000 do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(329.831482, 3.66450214, -618.48407, -0.806075394, -8.67358096e-08, 0.591812849, -1.05715522e-07, 1, 2.57029176e-09, -0.591812849, -6.04919563e-08, -0.806075394)
+                    end)
+                end
+            end
+            if not getgenv().RK5000 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头150000",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK150000 = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 150000 then
+                while getgenv().RK150000 do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-2566.78076, 3.97019577, -277.503235, -0.923934579, -4.11600105e-08, -0.382550538, -3.38838042e-08, 1, -2.57576183e-08, 0.382550538, -1.08360858e-08, -0.923934579)
+                    end)
+                end
+            end
+            if not getgenv().RK150000 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头400000",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK400000 = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 400000 then
+                while getgenv().RK400000 do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(2155.61743, 3.79830337, 1227.06482, -0.551303148, -9.16796949e-09, -0.834304988, -5.61318245e-08, 1, 2.61027839e-08, 0.834304988, 6.12216127e-08, -0.551303148)
+                    end)
+                end
+            end
+            if not getgenv().RK400000 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头750000",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK750000 = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 750000 then
+                while getgenv().RK750000 do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-7285.6499, 3.66624784, -1228.27417, 0.857643783, -1.58175091e-08, -0.514244199, -1.22581563e-08, 1, -5.12025977e-08, 0.514244199, 5.02172774e-08, 0.857643783)
+                    end)
+                end
+            end
+            if not getgenv().RK750000 then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头100万",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK1M = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 1000000 then
+                while getgenv().RK1M do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(4160.87109, 987.829102, -4136.64502, -0.893115997, 1.25481356e-05, 0.44982639, 5.02490684e-06, 1, -1.79187136e-05, -0.44982639, -1.37431543e-05, -0.893115997)
+                    end)
+                end
+            end
+            if not getgenv().RK1M then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头500万",
+    Value = false,
+    Callback = function(state)
+        getgenv().RK5M = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 5000000 then
+                while getgenv().RK5M do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-8957.54395, 5.53625107, -6126.90186, -0.803919137, 6.6065212e-08, 0.594738603, -8.93136143e-09, 1, -1.23155459e-07, -0.594738603, -1.04318865e-07, -0.803919137)
+                    end)
+                end
+            end
+            if not getgenv().RK5M then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+secST3:Toggle({
+    Title = "石头1000万",
+    Value = false,
+    Callback = function(state)
+        getgenv().JungleRock10M = state
+        spawn(function()
+            if game.Players.LocalPlayer.Durability.Value >= 10000000 then
+                while getgenv().JungleRock10M do
+                    wait()
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):EquipTool(v)
+                            end
+                        end
+                        for i, h in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+                            if h:IsA("Tool") and h.Name == "Punch" then
+                                h:Activate()
+                            end
+                        end
+                        game.Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(-7552.9, 3.4, 2847.7, -0.803919137, 6.6065212e-08, 0.594738603, -8.93136143e-09, 1, -1.23155459e-07, -0.594738603, -1.04318865e-07, -0.803919137)
+                    end)
+                end
+            end
+            if not getgenv().JungleRock10M then
+                pcall(function()
+                    game.Players.LocalPlayer.Character:WaitForChild("Humanoid"):UnequipTools()
+                end)
+            end
+        end)
+    end
+})
+
+local secZD1 = TabZD:Section({
+    Title = "刷业报",
+    Box = true,
+    Opened = true,
+})
+
+secZD1:Toggle({
+    Title = "刷业报v1",
+    Default = AutoStates.AutoKillReport,
+    Callback = function(state)
+        AutoStates.AutoKillReport = state
+        if AutoStates.AutoKillReportLoops then
+            for _, c in pairs(AutoStates.AutoKillReportLoops) do
+                c:Disconnect()
+            end
+        end
+        AutoStates.AutoKillReportLoops = {}
+        if not state then
+            if game.Players.LocalPlayer.Character then
+                local h = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+                if h then h:UnequipTools() end
+            end
+            return
+        end
+        local pL = game:GetService("RunService").Heartbeat:Connect(function()
+            if not AutoStates.AutoKillReport then
+                pL:Disconnect()
+                return
+            end
+            local c = game.Players.LocalPlayer.Character
+            if c and c:FindFirstChild("Humanoid") and c.Humanoid.Health > 0 then
+                local p = c:FindFirstChild("Punch") or game.Players.LocalPlayer.Backpack:FindFirstChild("Punch")
+                if p then
+                    p.Parent = c
+                    p:Activate()
+                end
+            end
+        end)
+        table.insert(AutoStates.AutoKillReportLoops, pL)
+        local tL = game:GetService("RunService").Heartbeat:Connect(function()
+            if not AutoStates.AutoKillReport then
+                tL:Disconnect()
+                return
+            end
+            local c = game.Players.LocalPlayer.Character
+            if c and c:FindFirstChild("Humanoid") and c.Humanoid.Health > 0 then
+                local p = {}
+                for _, pl in ipairs(game.Players:GetPlayers()) do
+                    if pl ~= game.Players.LocalPlayer and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") and pl.Character.Humanoid.Health > 0 then
+                        table.insert(p, pl)
+                    end
+                end
+                if #p > 0 then
+                    local t = p[math.random(#p)]
+                    local r = c:WaitForChild("HumanoidRootPart")
+                    r.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                end
+            end
+        end)
+        table.insert(AutoStates.AutoKillReportLoops, tL)
+    end
+})
+
+secZD1:Toggle({
+    Title = "刷业报v2",
+    Default = AutoStates.AutoKillReport2,
+    Callback = function(state)
+        AutoStates.AutoKillReport2 = state
+        if AutoStates.AutoKillReportLoops2 then
+            for _, c in pairs(AutoStates.AutoKillReportLoops2) do
+                c:Disconnect()
+            end
+        end
+        AutoStates.AutoKillReportLoops2 = {}
+        if not state then
+            if game.Players.LocalPlayer.Character then
+                local h = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+                if h then h:UnequipTools() end
+            end
+            return
+        end
+        local sP = CFrame.new(-8751.0, 120.4, -5863.1, 0.59992, -2.24e-09, 0.80006, 4.46e-09, 1, -5.44e-10, -0.80006, 3.90e-09, 0.59992)
+        local function tS()
+            local c = game.Players.LocalPlayer.Character
+            if c and c:FindFirstChild("HumanoidRootPart") then
+                c.HumanoidRootPart.CFrame = sP
+            end
+        end
+        local lKT = 0
+        local kC = 0.15
+        local pL = game:GetService("RunService").Heartbeat:Connect(function()
+            if not AutoStates.AutoKillReport2 then
+                pL:Disconnect()
+                return
+            end
+            local c = game.Players.LocalPlayer.Character
+            if c and c:FindFirstChild("Humanoid") and c.Humanoid.Health > 0 then
+                local p = c:FindFirstChild("Punch") or game.Players.LocalPlayer.Backpack:FindFirstChild("Punch")
+                if p then
+                    p.Parent = c
+                    p:Activate()
+                end
+            end
+        end)
+        table.insert(AutoStates.AutoKillReportLoops2, pL)
+        local tL = game:GetService("RunService").Heartbeat:Connect(function()
+            if not AutoStates.AutoKillReport2 then
+                tL:Disconnect()
+                return
+            end
+            local c = game.Players.LocalPlayer.Character
+            if c and c:FindFirstChild("Humanoid") and c.Humanoid.Health > 0 then
+                local p = {}
+                for _, pl in ipairs(game.Players:GetPlayers()) do
+                    if pl ~= game.Players.LocalPlayer and pl.Character and pl.Character:FindFirstChild("HumanoidRootPart") and pl.Character.Humanoid.Health > 0 then
+                        table.insert(p, pl)
+                    end
+                end
+                if #p > 0 then
+                    local cT = tick()
+                    if cT - lKT >= kC then
+                        local t = p[math.random(#p)]
+                        local r = c:WaitForChild("HumanoidRootPart")
+                        r.CFrame = t.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 2)
+                        lKT = cT
+                    else
+                        tS()
+                    end
+                else
+                    tS()
+                end
+            end
+        end)
+        table.insert(AutoStates.AutoKillReportLoops2, tL)
+        local dC = game.Players.LocalPlayer.CharacterAdded:Connect(function(c)
+            if AutoStates.AutoKillReport2 then
+                wait(1)
+                tS()
+            end
+        end)
+        table.insert(AutoStates.AutoKillReportLoops2, dC)
+    end
+})
+
+secZD1:Toggle({
+    Title = "刷业报v3",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoKarmaV3 = state
+        if not state then
+            if autoPunchLoop then
+                autoPunchLoop:Disconnect()
+                autoPunchLoop = nil
+            end
+            if attractLoop then
+                attractLoop:Disconnect()
+                attractLoop = nil
+            end
+            if game.Players.LocalPlayer.Character then
+                local humanoid = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+                if humanoid then humanoid:UnequipTools() end
+            end
+            if platform then
+                platform:Destroy()
+                platform = nil
+            end
+            return
+        end
+        platform = Instance.new('Part', workspace)
+        platform.Size = Vector3.new(50, 30, 50)
+        platform.Position = Vector3.new(0, 3000000, 0)
+        platform.CanCollide = true
+        platform.Anchored = true
+        platform.Name = "AutoKarmaPlatform"
+        local function teleportToPlatform()
+            local character = game.Players.LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                character.HumanoidRootPart.CFrame = platform.CFrame + Vector3.new(0, 25, 0)
+            end
+        end
+        teleportToPlatform()
+        game.Players.LocalPlayer.CharacterAdded:Connect(function(newChar)
+            if getgenv().AutoKarmaV3 then
+                newChar:WaitForChild("HumanoidRootPart")
+                teleportToPlatform()
+            end
+        end)
+        autoPunchLoop = game:GetService("RunService").Heartbeat:Connect(function()
+            if not getgenv().AutoKarmaV3 then return end
+            local character = game.Players.LocalPlayer.Character
+            if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+                local punch = character:FindFirstChild("Punch") or game.Players.LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punch then
+                    punch.Parent = character
+                    punch:Activate()
+                end
+            end
+        end)
+        attractLoop = game:GetService("RunService").Heartbeat:Connect(function()
+            if not getgenv().AutoKarmaV3 then return end
+            local character = game.Players.LocalPlayer.Character
+            if character and character:FindFirstChild("Humanoid") and character.Humanoid.Health > 0 then
+                teleportToPlatform()
+                for _, player in ipairs(game.Players:GetPlayers()) do
+                    if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and player.Character.Humanoid.Health > 0 then
+                        local targetHRP = player.Character.HumanoidRootPart
+                        local myHRP = character.HumanoidRootPart
+                        targetHRP.CFrame = myHRP.CFrame * CFrame.new(0, 0, -2)
+                    end
+                end
+            end
+        end)
+    end
+})
+
+secZD1:Toggle({
+    Title = "刷业报v4",
+    Default = AutoStates.AutoKillReport3,
+    Callback = function(state)
+        AutoStates.AutoKillReport3 = state
+        if AutoStates.AutoKillReportLoops3 then
+            for _, c in pairs(AutoStates.AutoKillReportLoops3) do
+                c:Disconnect()
+            end
+        end
+        AutoStates.AutoKillReportLoops3 = {}
+        if not state then
+            if game.Players.LocalPlayer.Character then
+                local h = game.Players.LocalPlayer.Character:FindFirstChild("Humanoid")
+                if h then h:UnequipTools() end
+            end
+            return
+        end
+        local pL = game:GetService("RunService").Heartbeat:Connect(function()
+            if not AutoStates.AutoKillReport3 then
+                pL:Disconnect()
+                return
+            end
+            for _, target in pairs(game.Players:GetPlayers()) do
+                if target ~= game.Players.LocalPlayer and target.Character and target.Character:FindFirstChild("Humanoid") and target.Character.Humanoid.Health > 0 then
+                    pcall(function()
+                        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+                            if v:IsA("Tool") and v.Name == "Punch" then
+                                game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+                            end
+                        end
+                        local p = game.Players.LocalPlayer.Character:FindFirstChild("Punch") or game.Players.LocalPlayer.Backpack:FindFirstChild("Punch")
+                        if p then
+                            p.Parent = game.Players.LocalPlayer.Character
+                            p:Activate()
+                        end
+                        local head = target.Character:FindFirstChild("Head")
+                        local lchar = game.Players.LocalPlayer.Character
+                        local hand = lchar and lchar:FindFirstChild("LeftHand")
+                        if head and hand then
+                            firetouchinterest(head, hand, 0)
+                            wait(0.01)
+                            firetouchinterest(head, hand, 1)
+                        end
+                    end)
+                end
+            end
+            wait(0.1)
+        end)
+        table.insert(AutoStates.AutoKillReportLoops3, pL)
+    end
+})
+
+local secZD2 = TabZD:Section({
+    Title = "指定名单击杀",
+    Box = true,
+    Opened = false,
+})
+
+secZD2:Toggle({
+    Title = "选中名单远程击杀(不选列表默认全部)",
+    Value = false,
+    Callback = function(state)
+        AutoStates = AutoStates or {}
+        AutoStates.AutoKill = state
+        if state then
+            spawn(function()
+                while AutoStates.AutoKill do
+                    pcall(function()
+                        local targets = {}
+                        if #Interstellar.killplayers > 0 then
+                            targets = Interstellar.killplayers
+                        else
+                            targets = PlayerList
+                        end
+                        for _, playerName in pairs(targets) do
+                            local target = Plr:FindFirstChild(playerName)
+                            if target and target.Character and target.Character:FindFirstChild("Humanoid") and target.Character.Humanoid.Health > 0 then
+                                for i, v in pairs(LP.Backpack:GetChildren()) do
+                                    if v:IsA("Tool") and v.Name == "Punch" then
+                                        LP.Character.Humanoid:EquipTool(v)
+                                    end
+                                end
+                                local p = LP.Character:FindFirstChild("Punch") or LP.Backpack:FindFirstChild("Punch")
+                                if p then
+                                    p.Parent = LP.Character
+                                    p:Activate()
+                                end
+                                local head = target.Character:FindFirstChild("Head")
+                                local lchar = LP.Character
+                                local hand = lchar and lchar:FindFirstChild("LeftHand")
+                                if head and hand then
+                                    firetouchinterest(head, hand, 0)
+                                    wait(0.01)
+                                    firetouchinterest(head, hand, 1)
+                                end
+                            end
+                        end
+                    end)
+                    wait(0.1)
+                end
+            end)
+        end
+    end
+})
+
+secZD2:Button({
+    Title = "查看选定远程名单",
+    Callback = function()
+        local targets = {}
+        if #Interstellar.killplayers > 0 then
+            targets = Interstellar.killplayers
+        else
+            targets = PlayerList
+        end
+        WindUI:Notify({
+            Title = "远程目标 (" .. #targets .. " 个玩家)",
+            Content = table.concat(targets, ", "),
+            Duration = 5,
+        })
+    end
+})
+
+secZD2:Button({
+    Title = "刷新玩家列表",
+    Callback = function()
+        refreshPlayerList()
+        WindUI:Notify({
+            Title = "玩家列表",
+            Content = "刷新玩家列表成功",
+            Duration = 3,
+        })
+    end
+})
+
+local secCS1 = TabCS:Section({
+    Title = "自动重生",
+    Box = true,
+    Opened = true,
+})
+
+secCS1:Toggle({
+    Title = "自动重生",
+    Value = false,
+    Callback = function(state)
+        getgenv().AutoRebirth = state
+        if getgenv().AutoRebirth then
+            spawn(function()
+                while getgenv().AutoRebirth do
+                    pcall(function()
+                        ReplicatedStorage.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                    end)
+                    wait()
+                end
+            end)
+        end
+    end
+})
+
+secCS1:Input({
+    Title = "自定义重生次数",
+    Desc = "只能输入大于现在的重生次数",
+    Callback = function(value)
+        Interstellar.birth = tonumber(value) or 0
+    end
+})
+
+secCS1:Toggle({
+    Title = "重生到指定的重生次数",
+    Value = false,
+    Callback = function(state)
+        Interstellar.autobirth = state
+        if Interstellar.autobirth then
+            spawn(function()
+                local player = game:GetService("Players").LocalPlayer
+                local targetRebirths = Interstellar.birth
+                while Interstellar.autobirth do
+                    if player.leaderstats.Rebirths.Value >= targetRebirths then
+                        Interstellar.autobirth = false
+                        Window:Notify({
+                            Title = "重生",
+                            Content = "已自动重生到目标次数",
+                            Duration = 3
+                        })
+                        break
+                    else
+                        ReplicatedStorage.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                        wait()
+                    end
+                end
+            end)
+        end
+    end
+})
+
+local secCS2 = TabCS:Section({
+    Title = "快速重生套件",
+    Box = true,
+    Opened = false,
+})
+
+secCS2:Toggle({
+    Title = "自动举哑铃",
+    Value = false,
+    Callback = function(Value)
+        for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+            if v.ClassName == "Tool" and v.Name == "Weight" then
+                v.Parent = game.Players.LocalPlayer.Character
+                wait()
+            end
+        end
+        if Value then
+            local AutoRep = Value
+            while AutoRep do
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                wait()
+            end
+        end
+    end
+})
+
+secCS2:Toggle({
+    Title = "自动修改体积为2",
+    Value = false,
+    Callback = function(Value)
+        if Value then
+            while Value do
+                ReplicatedStorage.rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
+                task.wait()
+            end
+        end
+    end
+})
+
+secCS2:Toggle({
+    Title = "自动传送肌肉之王",
+    Value = false,
+    Callback = function(Value)
+        if Value then
+            while Value do
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-8625.9296875, 13.566278457641602, -5730.4736328125)
+                task.wait()
+            end
+        end
+    end
+})
+
+local availablePetsEN = filterAvailableItems(PET_NAMES)
+local availablePetsCN = {}
+for _, en in ipairs(availablePetsEN) do
+    table.insert(availablePetsCN, PET_CN[en] or en)
+end
+local selectedPetCN = availablePetsCN[1] or ""
+local selectedPetEN = availablePetsEN[1] or ""
+
+local availableAurasEN = filterAvailableItems(AURA_NAMES)
+local availableAurasCN = {}
+for _, en in ipairs(availableAurasEN) do
+    table.insert(availableAurasCN, AURA_CN[en] or en)
+end
+local selectedAuraCN = availableAurasCN[1] or ""
+local selectedAuraEN = availableAurasEN[1] or ""
+
+local secCW1 = TabCW:Section({
+    Title = "宠物商店",
+    Box = true,
+    Opened = true,
+})
+
+local PetDropdown = secCW1:Dropdown({
+    Title = "选择宠物",
+    Values = availablePetsCN,
+    Value = selectedPetCN,
+    Callback = function(Value)
+        selectedPetCN = Value
+        selectedPetEN = PET_EN[Value] or ""
+    end
+})
+
+secCW1:Button({
+    Title = "购买宠物",
+    Callback = function()
+        if selectedPetEN == "" then
+            notify("请先选择一个宠物")
+            return
+        end
+        purchaseItem(selectedPetEN, true)
+    end
+})
+
+local AutoPetToggle = secCW1:Toggle({
+    Title = "自动购买宠物",
+    Value = false,
+    Callback = function(enabled)
+        if enabled and selectedPetEN == "" then
+            notify("没有可用的宠物")
+            AutoPetToggle:SetValue(false)
+            return
+        end
+        state.autoPet = enabled
+        state.petGeneration = state.petGeneration + 1
+        local generation = state.petGeneration
+        if enabled then
+            task.spawn(function()
+                while state.running and state.autoPet and state.petGeneration == generation do
+                    if selectedPetEN ~= "" then
+                        purchaseItem(selectedPetEN, false)
+                    end
+                    task.wait(0.18)
+                end
+            end)
+        end
+    end
+})
+
+local secCW2 = TabCW:Section({
+    Title = "光环商店",
+    Box = true,
+    Opened = false,
+})
+
+local AuraDropdown = secCW2:Dropdown({
+    Title = "选择光环",
+    Values = availableAurasCN,
+    Value = selectedAuraCN,
+    Callback = function(Value)
+        selectedAuraCN = Value
+        selectedAuraEN = AURA_EN[Value] or ""
+    end
+})
+
+secCW2:Button({
+    Title = "购买光环",
+    Callback = function()
+        if selectedAuraEN == "" then
+            notify("请先选择一个光环")
+            return
+        end
+        purchaseItem(selectedAuraEN, true)
+    end
+})
+
+local AutoAuraToggle = secCW2:Toggle({
+    Title = "自动购买光环",
+    Value = false,
+    Callback = function(enabled)
+        if enabled and selectedAuraEN == "" then
+            notify("没有可用的光环")
+            AutoAuraToggle:SetValue(false)
+            return
+        end
+        state.autoAura = enabled
+        state.auraGeneration = state.auraGeneration + 1
+        local generation = state.auraGeneration
+        if enabled then
+            task.spawn(function()
+                while state.running and state.autoAura and state.auraGeneration == generation do
+                    if selectedAuraEN ~= "" then
+                        purchaseItem(selectedAuraEN, false)
+                    end
+                    task.wait(0.18)
+                end
+            end)
+        end
+    end
+})
+
+local secCW3 = TabCW:Section({
+    Title = "自动进化",
+    Box = true,
+    Opened = false,
+})
+
+
+local LY3_sh = LY2_wc(ReplicatedStorage, "shared", 15)
+local LY3_rt = LY3_sh and LY2_wc(LY3_sh, "runtime", 10) or nil
+local LY3_shop = LY3_rt and LY2_wc(LY3_rt, "cPetShopFolder", 10) or nil
+
+local LY3_pets = {}
+if LY3_shop then
+    for _, it in ipairs(LY3_shop:GetChildren()) do
+        if it:GetAttribute("IsPowerUp") ~= true then
+            table.insert(LY3_pets, it.Name)
+        end
+    end
+    table.sort(LY3_pets)
+end
+if #LY3_pets == 0 then LY3_pets = { "无数据" } end
+
+local LY3_evoR = LY2_rE and LY2_wc(LY2_rE, "petEvolveEvent", 5) or nil
+local LY3_selEvo = LY3_pets[1]
+local LY3_evoOn = false
+local LY3_evoGen = 0
+
+secCW3:Dropdown({
+    Title = "选择宠物",
+    Values = LY3_pets,
+    Value = LY3_pets[1],
+    Callback = function(Value) LY3_selEvo = Value end
+})
+
+secCW3:Toggle({
+    Title = "自动进化",
+    Value = false,
+    Callback = function(Value)
+        LY3_evoOn = Value
+        LY3_evoGen = LY3_evoGen + 1
+        local g = LY3_evoGen
+        if not Value then return end
+        task.spawn(function()
+            while LY3_evoOn and LY3_evoGen == g do
+                if LY3_evoR and LY3_selEvo ~= "无数据" then
+                    pcall(function() LY3_evoR:FireServer("evolvePet", LY3_selEvo) end)
+                end
+                task.wait(0.5)
+            end
+        end)
+    end
+})
+
+
+local secCW4 = TabCW:Section({
+    Title = "宠物蛋",
+    Box = true,
+    Opened = false,
+})
+
+secCW4:Dropdown({
+    Title = "选择宠物蛋",
+    Values = crystalshowCN,
+    Value = "空",
+    Callback = function(v)
+        OpenCrystal = crystalNamesReverse[v] or v
+    end
+})
+
+secCW4:Button({
+    Title = "购买宠物蛋",
+    Callback = function()
+        pcall(function()
+            ReplicatedStorage.rEvents.openCrystalRemote:InvokeServer("openCrystal", OpenCrystal)
+        end)
+    end
+})
+
+secCW4:Toggle({
+    Title = "自动购买选中宠物蛋",
+    Value = false,
+    Callback = function(s)
+        local running = s
+        if s then
+            spawn(function()
+                while running do
+                    pcall(function()
+                        ReplicatedStorage.rEvents.openCrystalRemote:InvokeServer("openCrystal", OpenCrystal)
+                    end)
+                    wait()
+                end
+            end)
+        end
+    end
+})
+
+local function refreshOptions()
+    local newPetEN = filterAvailableItems(PET_NAMES)
+    local newPetCN = {}
+    for _, en in ipairs(newPetEN) do
+        table.insert(newPetCN, PET_CN[en] or en)
+    end
+    PetDropdown:Refresh(newPetCN)
+    local newAuraEN = filterAvailableItems(AURA_NAMES)
+    local newAuraCN = {}
+    for _, en in ipairs(newAuraEN) do
+        table.insert(newAuraCN, AURA_CN[en] or en)
+    end
+    AuraDropdown:Refresh(newAuraCN)
+    local petStillAvailable = false
+    for _, cn in ipairs(newPetCN) do
+        if cn == selectedPetCN then
+            petStillAvailable = true
+            break
+        end
+    end
+    if not petStillAvailable then
+        selectedPetCN = newPetCN[1] or ""
+        selectedPetEN = newPetEN[1] or ""
+        if AutoPetToggle.Value then
+            AutoPetToggle:SetValue(false)
+        end
+    end
+    local auraStillAvailable = false
+    for _, cn in ipairs(newAuraCN) do
+        if cn == selectedAuraCN then
+            auraStillAvailable = true
+            break
+        end
+    end
+    if not auraStillAvailable then
+        selectedAuraCN = newAuraCN[1] or ""
+        selectedAuraEN = newAuraEN[1] or ""
+        if AutoAuraToggle.Value then
+            AutoAuraToggle:SetValue(false)
+        end
+    end
+end
+
+local petShopFolder = getPetShopFolder()
+if petShopFolder then
+    petShopFolder.ChildAdded:Connect(function()
+        task.defer(refreshOptions)
+    end)
+    petShopFolder.ChildRemoved:Connect(function()
+        task.defer(refreshOptions)
+    end)
+else
+    ReplicatedStorage.DescendantAdded:Connect(function(descendant)
+        if descendant.Name == "cPetShopFolder" then
+            task.defer(refreshOptions)
+        end
+    end)
+end
+
+local secTS1 = TabTS:Section({
+    Title = "安全点",
+    Box = true,
+    Opened = true,
+})
+
+secTS1:Button({
+    Title = "安全点",
+    Callback = function()
+        T(CFrame.new(-51.67, 32.22, 1290.41, 0.99455, 1.24e-08, -0.10422, -7.59e-09, 1, 4.62e-08, 0.10422, -4.52e-08, 0.99455))
+    end
+})
+
+secTS1:Toggle({
+    Title = "安全点循环",
+    Value = false,
+    Callback = function(state)
+        getgenv().SafeSpot2 = state
+        spawn(function()
+            while getgenv().SafeSpot2 do
+                wait()
+                pcall(function()
+                    local char = game.Players.LocalPlayer.Character
+                    if not char then
+                        game.Players.LocalPlayer.CharacterAdded:Wait()
+                        char = game.Players.LocalPlayer.Character
+                        char:WaitForChild("HumanoidRootPart")
+                    end
+                    char.HumanoidRootPart.CFrame = CFrame.new(-51.67, 32.22, 1290.41, 0.99455, 1.24e-08, -0.10422, -7.59e-09, 1, 4.62e-08, 0.10422, -4.52e-08, 0.99455)
+                end)
+            end
+        end)
+    end
+})
+
+secTS1:Toggle({
+    Title = "安全点循环2",
+    Value = false,
+    Callback = function(state)
+        getgenv().SafeSpot2 = state
+        spawn(function()
+            while getgenv().SafeSpot2 do
+                wait()
+                pcall(function()
+                    local char = game.Players.LocalPlayer.Character
+                    if not char then
+                        game.Players.LocalPlayer.CharacterAdded:Wait()
+                        char = game.Players.LocalPlayer.Character
+                        char:WaitForChild("HumanoidRootPart")
+                    end
+                    char.HumanoidRootPart.CFrame = CFrame.new(0, 100050, 133.15)
+                end)
+            end
+        end)
+    end
+})
+
+local secTS2 = TabTS:Section({
+    Title = "地点传送",
+    Box = true,
+    Opened = true,
+})
+
+secTS2:Button({
+    Title = "雕像头顶",
+    Callback = function()
+        T(CFrame.new(1.19, 85.09, 244.49, 0.59992, -2.24e-09, 0.80006, 4.46e-09, 1, -5.44e-10, -0.80006, 3.90e-09, 0.59992))
+    end
+})
+
+secTS2:Button({
+    Title = "肌肉王雕像头顶",
+    Callback = function()
+        T(CFrame.new(-8751.0, 120.4, -5863.1, 0.59992, -2.24e-09, 0.80006, 4.46e-09, 1, -5.44e-10, -0.80006, 3.90e-09, 0.59992))
+    end
+})
+
+secTS2:Button({
+    Title = "出生点",
+    Callback = function()
+        T(CFrame.new(7, 3, 108))
+    end
+})
+
+secTS2:Button({
+    Title = "新手岛",
+    Callback = function()
+        T(CFrame.new(-37.61, 4.16, 1877.14))
+    end
+})
+
+secTS2:Button({
+    Title = "传说健身房",
+    Callback = function()
+        T(CFrame.new(4603.28, 988.18, -3897.87))
+    end
+})
+
+secTS2:Button({
+    Title = "永恒健身房",
+    Callback = function()
+        T(CFrame.new(-6758.96, 4.01, -1284.92))
+    end
+})
+
+secTS2:Button({
+    Title = "神话健身房",
+    Callback = function()
+        T(CFrame.new(2250.78, 4.01, 1073.23))
+    end
+})
+
+secTS2:Button({
+    Title = "冰霜健身房",
+    Callback = function()
+        T(CFrame.new(-2623.02, 4.01, -409.07))
+    end
+})
+
+secTS2:Button({
+    Title = "肌肉之王健身房",
+    Callback = function()
+        T(CFrame.new(-8625.93, 13.86, -5730.47))
+    end
+})
+
+secTS2:Button({
+    Title = "丛林健身房",
+    Callback = function()
+        T(CFrame.new(-8685.62, 3.43, 2392.33))
+    end
+})
+
+
+local secJY1 = TabJY:Section({
+    Title = "赠送道具",
+    Box = true,
+    Opened = true,
+})
+
+local LY2_giR = LY2_rE and LY2_wc(LY2_rE, "giftRemote", 5) or nil
+local LY2_cons = LY2_wc(LP, "consumablesFolder", 10)
+local LY2_egT, LY2_shT = nil, nil
+local LY2_egC, LY2_shC = 0, 0
+
+secJY1:Dropdown({
+    Title = "彩蛋对象",
+    Values = LY2_pOpts(true),
+    Callback = function(Value)
+        local n = LY2_pickName(Value)
+        LY2_egT = n and Players:FindFirstChild(n) or nil
+    end
+})
+
+secJY1:Input({
+    Title = "彩蛋数量",
+    Desc = "输入要赠送的数量",
+    Callback = function(Text)
+        local n = tonumber(Text)
+        if n then LY2_egC = math.max(0, math.floor(n)) end
+    end
+})
+
+secJY1:Button({
+    Title = "赠送彩蛋",
+    Callback = function()
+        if not LY2_egT or LY2_egC == 0 or not LY2_giR then
+            notify("请选择玩家并填写数量")
+            return
+        end
+        task.spawn(function()
+            for _ = 1, LY2_egC do
+                local e = LY2_cons and LY2_cons:FindFirstChild("Protein Egg")
+                if not e then break end
+                pcall(function() LY2_giR:InvokeServer("giftRequest", LY2_egT, e) end)
+                task.wait(0.1)
+            end
+            notify("彩蛋赠送结束")
+        end)
+    end
+})
+
+secJY1:Dropdown({
+    Title = "奶昔对象",
+    Values = LY2_pOpts(true),
+    Callback = function(Value)
+        local n = LY2_pickName(Value)
+        LY2_shT = n and Players:FindFirstChild(n) or nil
+    end
+})
+
+secJY1:Input({
+    Title = "奶昔数量",
+    Desc = "输入要赠送的数量",
+    Callback = function(Text)
+        local n = tonumber(Text)
+        if n then LY2_shC = math.max(0, math.floor(n)) end
+    end
+})
+
+secJY1:Button({
+    Title = "赠送奶昔",
+    Callback = function()
+        if not LY2_shT or LY2_shC == 0 or not LY2_giR then
+            notify("请选择玩家并填写数量")
+            return
+        end
+        task.spawn(function()
+            for _ = 1, LY2_shC do
+                local s = LY2_cons and LY2_cons:FindFirstChild("Tropical Shake")
+                if not s then break end
+                pcall(function() LY2_giR:InvokeServer("giftRequest", LY2_shT, s) end)
+                task.wait(0.1)
+            end
+            notify("奶昔赠送结束")
+        end)
+    end
+})
+
+local LY3_trR = LY2_rE and LY2_wc(LY2_rE, "tradingEvent", 5) or nil
+local LY3_trT = nil
+local LY3_selTradePet = LY3_pets[1]
+local LY3_tradeOn = false
+local LY3_tradeGen = 0
+
+secJY1:Dropdown({
+    Title = "交易对象",
+    Values = LY2_pOpts(true),
+    Callback = function(Value)
+        local n = LY2_pickName(Value)
+        LY3_trT = n and Players:FindFirstChild(n) or nil
+    end
+})
+
+secJY1:Dropdown({
+    Title = "交易宠物",
+    Values = LY3_pets,
+    Value = LY3_pets[1],
+    Callback = function(Value) LY3_selTradePet = Value end
+})
+
+secJY1:Toggle({
+    Title = "自动交易宠物",
+    Value = false,
+    Callback = function(Value)
+        LY3_tradeOn = Value
+        LY3_tradeGen = LY3_tradeGen + 1
+        local g = LY3_tradeGen
+        if not Value then return end
+        task.spawn(function()
+            while LY3_tradeOn and LY3_tradeGen == g do
+                if LY3_trR and LY3_trT and LY3_selTradePet ~= "无数据" then
+                    pcall(function()
+                        LY3_trR:FireServer("sendTradeRequest", LY3_trT)
+                        task.wait(0.5)
+                        local pf = LP:FindFirstChild("petsFolder")
+                        local uq = pf and pf:FindFirstChild("Unique")
+                        local cnt = 0
+                        if uq then
+                            for _, pet in ipairs(uq:GetChildren()) do
+                                if not LY3_tradeOn then break end
+                                if pet.Name == LY3_selTradePet then
+                                    LY3_trR:FireServer("offerItem", pet)
+                                    cnt = cnt + 1
+                                    task.wait(0.01)
+                                    if cnt >= 6 then break end
+                                end
+                            end
+                        end
+                        task.wait(0.05)
+                        if LY3_tradeOn then LY3_trR:FireServer("acceptTrade") end
+                    end)
+                end
+                task.wait(2)
+            end
+        end)
+    end
+})
+
+WindUI:Notify({
+    Title = "力量传奇 林玉",
+    Content = "加载完成",
+    Duration = 3
+})
